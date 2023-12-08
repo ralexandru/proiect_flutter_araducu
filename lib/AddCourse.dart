@@ -182,7 +182,7 @@ class DropdownButtonProiect extends StatefulWidget {
 
 class _DropdownButtonState extends State<DropdownButtonProiect> {
   late Future<List<DomainOfStudy>> domainsFuture;
-  late int? selectedDomainId;
+  int? dropdownSelectedDomainId; // Use a different name
   List<DomainOfStudy> domainsList = [];
 
   @override
@@ -202,12 +202,11 @@ class _DropdownButtonState extends State<DropdownButtonProiect> {
           return Text('Error: ${snapshot.error}');
         } else {
           domainsList = snapshot.data!;
-          selectedDomainId =
-              domainsList.isNotEmpty ? domainsList[0].domainId : null;
+          dropdownSelectedDomainId ??= domainsList.isNotEmpty ? domainsList[0].domainId : null;
 
           return domainsList.isNotEmpty
               ? DropdownButton<String>(
-                  value: selectedDomainId.toString(),
+                  value: dropdownSelectedDomainId?.toString(),
                   icon: const Icon(Icons.arrow_downward),
                   elevation: 16,
                   style: const TextStyle(color: Colors.blue),
@@ -218,7 +217,9 @@ class _DropdownButtonState extends State<DropdownButtonProiect> {
                   onChanged: (String? value) {
                     setState(() {
                       if (value != null) {
+                        dropdownSelectedDomainId = int.parse(value);
                         selectedDomainId = int.parse(value);
+                        print(selectedDomainId);
                       }
                     });
                   },

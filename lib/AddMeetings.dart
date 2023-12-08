@@ -85,7 +85,8 @@ class AddMeetings extends StatelessWidget {
       for (int i = 0; i < noOfMeetings; i++) {
         CourseMeeting meeting = CourseMeeting(
             CourseMeetingName: courseTitles[i].text,
-            CourseMeetingDate: courseDates[i]);
+            CourseMeetingDate: courseDates[i],
+            CourseMeetingId: courseToBeAdded.CourseId);
         print(meeting.CourseMeetingName);
         meetings.add(meeting);
       }

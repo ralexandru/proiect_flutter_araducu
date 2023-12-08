@@ -1,5 +1,6 @@
 import 'package:proiect_flutter_araducu/AddCourse.dart';
 import 'package:proiect_flutter_araducu/AddMeetings.dart';
+import 'package:http/http.dart' as http;
 
 import 'CourseMeeting.dart';
 import 'dart:convert';
@@ -34,7 +35,7 @@ class Course {
 
   void Test() {
     print(
-        'COURSE NAME: $CourseName \n COURSE SHORT DESC: $CourseShortDescription \n COURSE LONG DECS: $CourseLongDescription \n COURSE START DATE: ${startDate.toString()}  \n END DATE: ${endDate.toString()} \n NO OF SEATS: $AvailableSeats \n PRICE $Price \n DIFFCULTY: $DifficultyLevel');
+        'Domain ID : $DomainId \n NAME: $CourseName \n COURSE SHORT DESC: $CourseShortDescription \n COURSE LONG DECS: $CourseLongDescription \n COURSE START DATE: ${startDate.toString()}  \n END DATE: ${endDate.toString()} \n NO OF SEATS: $AvailableSeats \n PRICE $Price \n DIFFCULTY: $DifficultyLevel');
     for (int i = 0; i < meetings!.length; i++) {
       String meetingName = meetings![i].CourseMeetingName;
       print(
@@ -71,7 +72,9 @@ Future<void> CreateCourseDB(Course course) async {
           ?.map((meeting) => {
                 'MeetingDenumire': meeting.CourseMeetingName,
                 'MeetingData': meeting.CourseMeetingDate.toIso8601String(),
+                'CursId': course.CourseId,
                 // Add other meeting properties as needed
+                
               })
           .toList(),
     };
@@ -93,5 +96,53 @@ Future<void> CreateCourseDB(Course course) async {
     print('Error: $error');
   } finally {
     client.close();
+  }
+}
+
+Future<Course> fetchCourseInfo(int? courseId) async {
+  HttpClient client = new HttpClient();
+  int idCourse = courseId ?? 0;
+  client.badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => true);
+  final request = await client.getUrl(Uri.parse('https://localhost:7097/api/Courses/course?cursId=$idCourse'));
+ HttpClientResponse response = await request.close();
+
+  if (response.statusCode == 200) {
+    String responseBody = await response.transform(utf8.decoder).join();
+    final Map<String, dynamic> responseData = json.decode(responseBody);
+
+    // Parse Course details
+    Course course = Course(
+      CourseId: responseData['CursId'],
+      CourseName: responseData['CursDenumire'],
+      CourseShortDescription: responseData['CursScurtaDescriere'],
+      CourseLongDescription: responseData['CursLungaDescriere'],
+      StartDate: DateTime.parse(responseData['DataInceput']),
+      FinishDate: DateTime.parse(responseData['DataFinal']),
+      AvailableSeats: responseData['LocuriDisponibile'],
+      Price: responseData['Pret'],
+      DifficultyLevel: responseData['NivelDificultate'],
+      DomainId: responseData['DomeniuId'],
+    );
+
+    // Parse CourseMeeting details
+    if (responseData['meetinguriCurs'] != null) {
+      List<CourseMeeting> meetings = [];
+      for (var meetingData in responseData['meetinguriCurs']) {
+        CourseMeeting meeting = CourseMeeting(
+          CourseMeetingId: meetingData['MeetingId'],
+          CourseMeetingName: meetingData['MeetingDenumire'],
+          CourseMeetingDate: DateTime.parse(meetingData['MeetingData']),
+        );
+        meetings.add(meeting);
+      }
+      course.meetings = meetings;
+    }
+    course.Test();
+
+    return course;
+  } else {
+    print('STATUS CODE ${response.statusCode}');
+    throw Exception('Failed to load course info');
   }
 }

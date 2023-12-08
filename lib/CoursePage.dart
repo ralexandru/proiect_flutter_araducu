@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:proiect_flutter_araducu/classes/DomainOfStudy.dart';
+import 'classes/Course.dart';
+import 'package:intl/intl.dart';
+import 'classes/CourseMeeting.dart';
 
 class CoursePage extends StatelessWidget {
+  int? CourseId;
   final ScrollController _scrollController = new ScrollController();
   final String title;
-  CoursePage({super.key, required this.title});
+  CoursePage({super.key, required this.title, required this.CourseId});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    fetchCourseInfo(CourseId);
+    return 
+    Scaffold(
       appBar: AppBar(
         // The title text which will be shown on the action bar
         title: Text(title),
@@ -20,7 +27,32 @@ class CoursePage extends StatelessWidget {
           },
         ),
       ),
-      body: SingleChildScrollView(
+      body: FutureBuilder<Course>(
+        future: fetchCourseInfo(CourseId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator(); // or a loading indicator
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else if (!snapshot.hasData || snapshot.data == null) {
+            return Text('No course data available');
+          } 
+            Course course = snapshot.data!;
+            int? idDomain = course.DomainId;
+            print("ID DOMAIN: $idDomain");
+            return FutureBuilder<DomainOfStudy>(
+        future: fetchDomainInfo(idDomain),
+        builder: (context, domainSnapshot) {
+          if (domainSnapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } else if (domainSnapshot.hasError) {
+            return Text('Error: ${domainSnapshot.error}');
+          } else if (!domainSnapshot.hasData || domainSnapshot.data == null) {
+            return Text('No domain data available');
+          } else {
+            DomainOfStudy domain = domainSnapshot.data!;
+           
+            return SingleChildScrollView(
         controller: _scrollController,
         scrollDirection: Axis.vertical,
         child: SizedBox(
@@ -68,7 +100,7 @@ class CoursePage extends StatelessWidget {
                                 children: [
                                   Icon(Icons.people, color: Colors.black),
                                   Text(
-                                    '10' + '/' + '20',
+                                    course.AvailableSeats.toString(),
                                     style: TextStyle(fontSize: 18),
                                   )
                                 ],
@@ -78,7 +110,7 @@ class CoursePage extends StatelessWidget {
                                 children: [
                                   Icon(Icons.calendar_month,
                                       color: Colors.black),
-                                  Text('01/01/2024' + '-' + '03/03/2024',
+                                  Text(DateFormat('yyyy-MM-dd').format(course.StartDate) + '-' + DateFormat('yyyy-MM-dd').format(course.FinishDate),
                                       style: TextStyle(fontSize: 18)),
                                 ],
                               )
@@ -112,7 +144,7 @@ class CoursePage extends StatelessWidget {
                 SizedBox(width: 5),
                 OutlinedButton(
                     onPressed: () => {},
-                    child: Text('Math', style: TextStyle(color: Colors.blue)),
+                    child: Text(domain.domainName, style: TextStyle(color: Colors.blue)),
                     style: OutlinedButton.styleFrom(
                         side: BorderSide(color: Colors.blue))),
               ]),
@@ -146,7 +178,7 @@ class CoursePage extends StatelessWidget {
                       ]),
                       SizedBox(height: 10),
                       Text(
-                          'eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.eu tincidunt leo.'),
+                          course.CourseLongDescription),
                     ],
                   ),
                 ),
@@ -163,7 +195,29 @@ class CoursePage extends StatelessWidget {
                   thickness: 1,
                 ),
               ),
-              Container(
+              Column(children: createContainers(course.meetings),)
+
+            ],
+          ),
+        ));
+        }
+        }
+      );
+      }
+    )
+    );
+  }
+}
+
+  List<Widget> createContainers(List<CourseMeeting>? meetings) {
+    List<Widget> containers = [];
+  
+
+    if(meetings != null)
+    for (int i = 0; i < meetings.length; i++) {
+      bool edit = false;
+
+      Container container = Container(
                   margin: EdgeInsets.all(16.0),
                   padding: EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
@@ -181,7 +235,7 @@ class CoursePage extends StatelessWidget {
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Text('Introduction into Advanced Math',
+                        Text(meetings[i].CourseMeetingName,
                             style: TextStyle(
                               fontSize: 20,
                             )),
@@ -189,15 +243,14 @@ class CoursePage extends StatelessWidget {
                           children: [
                             Icon(Icons.calendar_month),
                             SizedBox(width: 6),
-                            Text('01/01/2024 02:50',
+                            Text(DateFormat('yyyy-MM-dd hh:mm').format(meetings[i].CourseMeetingDate),
                                 style: TextStyle(fontSize: 16)),
                           ],
                         ),
-                      ])),
-            ],
-          ),
-        ),
-      ),
-    );
+                      ]));
+
+      containers.add(container);
+    }
+    return containers;
   }
-}
+

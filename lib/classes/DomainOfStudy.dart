@@ -139,3 +139,31 @@ Future<List<DomainOfStudy>> retrieveDomains() async {
     return [];
   }
 }
+Future<DomainOfStudy> fetchDomainInfo(int? domainId) async {
+  HttpClient client = new HttpClient();
+  int DomainId2 = domainId ?? 0;
+  
+  client.badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => true);
+  final request = await client.getUrl(Uri.parse('https://localhost:7097/api/Domain/domain?DomeniuId=$DomainId2'));
+ HttpClientResponse response = await request.close();
+
+  if (response.statusCode == 200) {
+    String responseBody = await response.transform(utf8.decoder).join();
+    final Map<String, dynamic> responseData = json.decode(responseBody);
+
+    // Parse Course details
+    DomainOfStudy domain = DomainOfStudy(
+      domainId: responseData['DomeniuId'],
+      domainName: responseData['DomeniuDenumire'],
+      domainDescription: responseData['DomeniuDescriere'],
+    );
+
+    // Parse CourseMeeting detail
+
+    return domain;
+  } else {
+    print('STATUS CODE ${response.statusCode}');
+    throw Exception('Failed to load domain info');
+  }
+}

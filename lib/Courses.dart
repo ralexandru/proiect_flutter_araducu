@@ -259,7 +259,7 @@ class _CourseContainerState extends State<CourseContainer> {
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              CoursePage(title: "Course Pge")));
+                              CoursePage(title: "Course Pge", CourseId: widget.course.CourseId,)));
                   // Perform some action
                 },
                 child: const Text('More details'),
