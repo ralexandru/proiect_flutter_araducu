@@ -3,12 +3,14 @@ import 'package:proiect_flutter_araducu/classes/DomainOfStudy.dart';
 import 'classes/Course.dart';
 import 'package:intl/intl.dart';
 import 'classes/CourseMeeting.dart';
+import 'Files.dart';
 
 class CoursePage extends StatelessWidget {
   int? CourseId;
   final ScrollController _scrollController = new ScrollController();
   final String title;
-  CoursePage({super.key, required this.title, required this.CourseId});
+  final bool isEnrolled;
+  CoursePage({super.key, required this.title, required this.CourseId, required this.isEnrolled});
 
   @override
   Widget build(BuildContext context) {
@@ -124,15 +126,29 @@ class CoursePage extends StatelessWidget {
               ),
               SizedBox(height: 10),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                if(!isEnrolled)
                 OutlinedButton(
                   onPressed: () => {},
                   child: Text('Enroll into course',
                       style: TextStyle(color: Colors.green)),
                 ),
+                if(isEnrolled)
+                 OutlinedButton(
+                  onPressed: () => {
+                    
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                            Files(title: "test", courseId: CourseId ?? 0)))
+                  },
+                  child: Row(children: [Icon(Icons.file_copy, color: Colors.blue,),Text('Files',
+                      style: TextStyle(color: Colors.blue))]),
+                ),
                 SizedBox(width: 10),
                 OutlinedButton(
                   onPressed: () => {},
-                  child: Text('Add course to favorites'),
+                  child: Row(children: [Icon(Icons.star),Text('Add course to favorites')]),
                 ),
               ]),
               SizedBox(height: 10),

@@ -151,6 +151,7 @@ class _CoursesPageState extends State<CoursesPage> {
                       'Building item $index | TOTAL LENGTH: ${coursesEnrolled.length}');
                   return CourseContainer(
                     type: 0,
+                    isEnrolled: true,
                     course: coursesEnrolled[index],
                     onPressed: () => {},
                   );
@@ -168,6 +169,7 @@ class _CoursesPageState extends State<CoursesPage> {
                   return CourseContainer(
                     type: 1,
                     course: courses[index],
+                    isEnrolled: false,
                     onPressed: () {
                       // Trigger UI update after enrolling in the course
                       fetchData(
@@ -196,9 +198,10 @@ class CourseContainer extends StatefulWidget {
   final VoidCallback onPressed;
   final int type;
   final Course course;
+  final bool isEnrolled;
 
   CourseContainer(
-      {required this.course, required this.onPressed, required this.type});
+      {required this.course, required this.onPressed, required this.type, required this.isEnrolled});
 
   @override
   _CourseContainerState createState() => _CourseContainerState();
@@ -259,7 +262,7 @@ class _CourseContainerState extends State<CourseContainer> {
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              CoursePage(title: "Course Pge", CourseId: widget.course.CourseId,)));
+                              CoursePage(title: "Course Pge", CourseId: widget.course.CourseId,isEnrolled: widget.isEnrolled,)));
                   // Perform some action
                 },
                 child: const Text('More details'),
