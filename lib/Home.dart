@@ -1,15 +1,18 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:proiect_flutter_araducu/NavigationDrawer.dart';
+import 'package:proiect_flutter_araducu/classes/Course.dart';
 import 'Profile.dart';
 import 'Courses.dart';
-
+import 'classes/News.dart';
+import 'commonClasses/NewsP.dart';
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
-
+  const Home();
   @override
   _HomeState createState() => _HomeState();
 }
 
+List<News> news = [];
 class _HomeState extends State<Home> {
   ScrollController _scrollController = ScrollController();
   @override
@@ -24,6 +27,91 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
+List<Widget> createNewsCard(List<News> newsList) {
+  print("LENGTH: ${newsList.length}");
+  List<Widget> containers = [];
+  for (int i = 0; i < newsList.length; i++) {
+    if (newsList[i] != null && newsList[i].newsId != null) {
+      SizedBox sizedBox = SizedBox(
+        child: Container(
+          margin: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.blue),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: Offset(0, 3),
+              )
+            ],
+          ),
+          child: Column(
+            children: [
+              Text(
+                newsList[i].newsName ?? '',
+                style: TextStyle(
+                  fontSize: 23,
+                  color: Colors.black,
+                ),
+              ),
+              SizedBox(height: 12),
+              Text(
+                (newsList[i].newsContent ?? '') + '...',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+              SizedBox(height: 10),
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NewsPage(news: newsList[i]),
+                    ),
+                  );
+                },
+                child: Text('Read more'),
+              ),
+              SizedBox(height: 10),
+              if (nivelAcces == 3)
+                OutlinedButton(
+                  onPressed: () {
+                    DeleteNewsApp(newsList[i].newsId!);
+                  },
+                  child: Text('Delete'),
+                ),
+            ],
+          ),
+        ),
+      );
+      containers.add(sizedBox);
+    }
+  }
+  return containers;
+}
+
+List<Widget> createDomainsContainer(List<String> domains){
+  List<Widget> container = [];
+  for(int i = 0; i < domains.length; i++){
+    SizedBox sizedBox = SizedBox(width:10);
+    Row row = Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      OutlinedButton(
+      child: Text(domains[i]),
+      onPressed: () => {},)]);
+    container.add(sizedBox);
+    container.add(row);
+  }
+  return container;
+}
+void DeleteNewsApp(int newsId){
+  DeleteNews(newsId);
+  setState(() {
+    news.removeWhere((newsItem) => newsItem.newsId == newsId);
+  });
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,7 +204,18 @@ class _HomeState extends State<Home> {
                                 color: Colors.blue))
                       ],
                     ),
-                    Text("10", style: TextStyle(fontSize: 30)),
+                    FutureBuilder(
+              future: fetchCourseNumbers(userId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  // Safely access the data
+                  String coursesNo = snapshot.data as String;
+                  return Text(coursesNo, style: TextStyle(fontSize: 30));
+                }}),
                     OutlinedButton(
                       child: Text('Enroll in more courses',
                           style: TextStyle(
@@ -141,18 +240,26 @@ class _HomeState extends State<Home> {
                         )
                       ],
                     ),
-                    SizedBox(height: 10),
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      OutlinedButton(
-                        child: Text('Math'),
-                        onPressed: () => {},
-                      ),
-                      SizedBox(width: 10),
-                      OutlinedButton(
-                        child: Text('English'),
-                        onPressed: () => {},
-                      )
-                    ]),
+                    FutureBuilder(
+              future: fetchDomainsEnrolled(userId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  // Safely access the data
+                  List<String>? domains = snapshot.data as List<String>?;
+
+                  if (domains != null && domains.isNotEmpty) {
+                    
+                    return Row(mainAxisAlignment: MainAxisAlignment.center, children: createDomainsContainer(domains));
+                  }else {
+                    return Text('No news for the moment..');
+                  }
+                }
+              },
+            )
                   ])
                 ]),
               ),
@@ -168,12 +275,27 @@ class _HomeState extends State<Home> {
                 child: Divider(color: Colors.blue, thickness: 1)),
             Text('Keep being up-to-date with our latest news!',
                 style: TextStyle(color: Colors.blue)),
-            NewsCard(
-              newsTitle: "test",
-              newsShortDesc:
-                  "Aceasta este o descriere mai scurta, care as vrea sa se intinda pe mai multe randuri",
-              onPressed: () => {},
-            ),
+            FutureBuilder(
+              future: retrieveNews(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  // Safely access the data
+                  List<News>? newsList = snapshot.data as List<News>?;
+
+                  if (newsList != null && newsList.isNotEmpty) {
+                    return Column(
+                      children: createNewsCard(newsList),
+                    );
+                  } else {
+                    return Text('No news for the moment..');
+                  }
+                }
+              },
+            )
           ],
         ),
       ),
@@ -221,7 +343,7 @@ class NewsCard extends StatelessWidget {
             Text(newsShortDesc + "...",
                 style: TextStyle(fontSize: 16, color: Colors.grey)),
             SizedBox(height: 10),
-            OutlinedButton(onPressed: onPressed, child: Text('Read more'))
+            //OutlinedButton(onPressed: NewsPage(news: news[i]), child: Text('Read more')),
           ],
         ),
       ),

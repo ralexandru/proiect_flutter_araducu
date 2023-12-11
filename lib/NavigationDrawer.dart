@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proiect_flutter_araducu/AddCourse.dart';
+import 'package:proiect_flutter_araducu/ManageCarousel.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
@@ -8,7 +9,7 @@ import 'Profile.dart';
 import 'UsersList.dart';
 import 'CreateDomain.dart';
 import 'ManageDomains.dart';
-
+import 'AddNews.dart';
 int userId = 0;
 String username = '';
 String email = '';
@@ -145,6 +146,28 @@ class _DrawerProiectState extends State<DrawerProiect> {
                     build,
                     MaterialPageRoute(
                         builder: (context) => UsersList(title: "Add ")),
+                  );
+                }),
+          if(nivelAcces==3)
+            ListTile(
+                title: const Text('Add news',
+                    style: TextStyle(color: Colors.blue)),
+                onTap: () {
+                  Navigator.push(
+                    build,
+                    MaterialPageRoute(
+                        builder: (context) => AddNews()),
+                  );
+                }),
+           if(nivelAcces==3)
+            ListTile(
+                title: const Text('Manage carousel',
+                    style: TextStyle(color: Colors.blue)),
+                onTap: () {
+                  Navigator.push(
+                    build,
+                    MaterialPageRoute(
+                        builder: (context) => ManageCarousel()),
                   );
                 })
         ],

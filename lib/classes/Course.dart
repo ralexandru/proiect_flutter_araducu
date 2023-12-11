@@ -131,7 +131,7 @@ Future<Course> fetchCourseInfo(int? courseId) async {
   if (response.statusCode == 200) {
     String responseBody = await response.transform(utf8.decoder).join();
     final Map<String, dynamic> responseData = json.decode(responseBody);
-
+    Uint8List? fileData;
     // Parse Course details
     Course course = Course(
       CourseId: responseData['CursId'],
@@ -144,9 +144,13 @@ Future<Course> fetchCourseInfo(int? courseId) async {
       Price: responseData['Pret'],
       DifficultyLevel: responseData['NivelDificultate'],
       DomainId: responseData['DomeniuId'],
-      fileData: Uint8List.fromList(base64.decode(responseData["bannerImg"]))
     );
-
+    if (responseData["bannerImg"] != null) {
+      course.fileData = Uint8List.fromList(base64.decode(responseData["bannerImg"]));
+    } else {
+      // Assign a default value if fileData is null
+      fileData = Uint8List(0); // Empty Uint8List
+    }
     // Parse CourseMeeting details
     if (responseData['meetinguriCurs'] != null) {
       List<CourseMeeting> meetings = [];
@@ -198,4 +202,47 @@ Future<void> UpdateCourseBanner(Course course) async {
   print("COURSE BANNER: ${response.statusCode}");
   print("Stats URL BANNER: ${response.statusCode}");
   client.close();
+}
+
+Future<String> fetchCourseNumbers(int? utilizatorId) async {
+  HttpClient client = new HttpClient();
+  int idUtilizator = utilizatorId ?? 0;
+  client.badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => true);
+  final request = await client.getUrl(Uri.parse('https://localhost:7097/api/Courses/nr-cursuri-inscris?utilizatorId=$idUtilizator'));
+ HttpClientResponse response = await request.close();
+
+  if (response.statusCode == 200) {
+    String responseBody = await response.transform(utf8.decoder).join();
+    final String responseData = json.decode(responseBody);
+    String count = responseData;
+    print("COUNT" + count);
+
+    return count;
+  } else {
+    print('STATUS CODE ${response.statusCode}');
+    throw Exception('Failed to load course info');   
+  }
+}
+
+Future<List<String>> fetchDomainsEnrolled(int? utilizatorId) async {
+  HttpClient client = new HttpClient();
+  int idUtilizator = utilizatorId ?? 0;
+  client.badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => true);
+  final request = await client.getUrl(Uri.parse('https://localhost:7097/api/Courses/domenii-inscris?utilizatorId=$idUtilizator'));
+ HttpClientResponse response = await request.close();
+
+  if (response.statusCode == 200) {
+    String responseBody = await response.transform(utf8.decoder).join();
+    final List<dynamic> responseData = json.decode(responseBody);
+    List<String> responseDomains = [];
+    for(int i = 0; i < responseData.length; i++)
+      responseDomains.add(responseData[i]);
+
+    return responseDomains;
+  } else {
+    print('STATUS CODE ${response.statusCode}');
+    throw Exception('Failed to load course info');   
+  }
 }
