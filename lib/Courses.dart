@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:proiect_flutter_araducu/CoursePage.dart';
 import 'NavigationDrawer.dart';
 import 'classes/Course.dart';
+import 'dart:typed_data';
 
 List<String> differentCourses = <String>[
   'My courses',
@@ -45,6 +46,13 @@ Future<List<Course>> fetchData(String url) async {
       final List<dynamic> data =
           json.decode(await response.transform(utf8.decoder).join());
       return data.map((courseData) {
+          String? bannerImgString = courseData["bannerImg"];
+          print("BANNER IMG STRING: $bannerImgString");
+          Uint8List? fileData;
+            if (bannerImgString != null) {
+    List<int> decodedBytes = base64.decode(bannerImgString);
+    fileData = Uint8List.fromList(decodedBytes);
+  }
         return Course(
           CourseId: courseData['CursId'],
           CourseName: courseData['CursDenumire'],
@@ -55,6 +63,7 @@ Future<List<Course>> fetchData(String url) async {
           AvailableSeats: courseData['LocuriDisponibile'],
           Price: courseData['Pret'],
           DifficultyLevel: courseData['NivelDificultate'],
+          fileData: fileData,
         );
       }).toList();
     } else {
@@ -262,7 +271,7 @@ class _CourseContainerState extends State<CourseContainer> {
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              CoursePage(title: "Course Pge", CourseId: widget.course.CourseId,isEnrolled: widget.isEnrolled,)));
+                              CoursePage(title: "Course Pge", CourseId: widget.course.CourseId,isEnrolled: widget.isEnrolled, course: widget.course)));
                   // Perform some action
                 },
                 child: const Text('More details'),
@@ -282,8 +291,11 @@ class _CourseContainerState extends State<CourseContainer> {
                 ),
             ],
           ),
+          if(widget.course.fileData == null)
           Image.network(
               'https://img.jagranjosh.com/imported/images/E/Articles/CBSE-Class-12-Maths-Sample-Paper-2020-Download-PDF-Body-Images.jpg'),
+          if(widget.course.fileData != null)
+          Image.memory(widget.course.fileData!)
         ],
       ),
     );

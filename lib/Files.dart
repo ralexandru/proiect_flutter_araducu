@@ -4,14 +4,15 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file_plus/open_file_plus.dart';
+import 'package:proiect_flutter_araducu/NavigationDrawer.dart';
 import 'classes/File.dart';
 
 
 
 
 List<FileApp> files = [];
-
 class Files extends StatefulWidget {
+  bool initialState = true;
   final String title;
   int courseId;
   Files({Key? key, required this.title, required this.courseId}) : super(key: key);
@@ -39,17 +40,30 @@ class _FilesState extends State<Files> {
           },
         ),
       ),
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        scrollDirection: Axis.vertical,
-        child: Center(
-          child: Container(
-            padding: EdgeInsets.all(5),
-            child: Column(
-              children: CreateContainers(),
-            ),
-          ),
-        ),
+      body: FutureBuilder<List<FileApp>>(
+        future: retrieveFiles(widget.courseId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center,children: [CircularProgressIndicator(), SizedBox(height:10), Text("We're retrieving your files...")])); // Loading indicator while waiting
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else {
+            if(widget.initialState)
+              files = snapshot.data ?? [];
+            return SingleChildScrollView(
+              controller: _scrollController,
+              scrollDirection: Axis.vertical,
+              child: Center(
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  child: Column(
+                    children: CreateContainers(),
+                  ),
+                ),
+              ),
+            );
+          }
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _openFilePicker(),
@@ -59,57 +73,55 @@ class _FilesState extends State<Files> {
     );
   }
 
-void _openFilePicker() async {
-  try {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
 
-    if (result != null && result.files.isNotEmpty) {
-      PlatformFile file = result.files.first;
+  void _openFilePicker() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles();
 
-      // Ensure the file has a path
-      if (file.path != null) {
-        // Read file bytes asynchronously
-        List<int> bytes = await File(file.path!).readAsBytes();
+      if (result != null && result.files.isNotEmpty) {
+        PlatformFile file = result.files.first;
 
-        // Process the picked file
-        print('File picked: ${file.name}');
+        // Ensure the file has a path
+        if (file.path != null) {
+          // Read file bytes asynchronously
+          List<int> bytes = await File(file.path!).readAsBytes();
 
-        // Extract file extension from the file name
-        String fileExtension = file.extension ?? 'Unknown';
-        
-        // Create a new instance of the FileApp class
-        FileApp newFile = FileApp(
-          fileId: files.length + 1,
-          courseId: widget.courseId,
-          fileName: file.name!,
-          fileType: fileExtension,
-          uploadDate: DateTime.now(),
-          fileData: Uint8List.fromList(bytes),
-          ftpFile: 'ftp://test',
-        );
+          // Process the picked file
+          print('File picked: ${file.name}');
 
-        print('ORIGINAL FILE: $bytes');
-        print('FILE UPLOAD: ${newFile.fileData}');
+          // Extract file extension from the file name
+          String fileExtension = file.extension ?? 'Unknown';
 
-        // Add the new file to the list
-        setState(() {
-          files.add(newFile);
-          newFile.UploadFile();
-        });
+          // Create a new instance of the FileApp class
+          FileApp newFile = FileApp(
+            fileId: files.length + 1,
+            courseId: widget.courseId,
+            fileName: file.name!,
+            fileType: fileExtension,
+            uploadDate: DateTime.now(),
+            fileData: Uint8List.fromList(bytes),
+            ftpFile: 'ftp://test',
+          );
+
+          print('ORIGINAL FILE: $bytes');
+          print('FILE UPLOAD: ${newFile.fileData}');
+
+          // Add the new file to the list and trigger a rebuild
+          setState(() {
+            widget.initialState=false;
+            files.add(newFile);
+            newFile.UploadFile();
+          });
+        } else {
+          print('File path is null.');
+        }
       } else {
-        print('File path is null.');
+        print('No file selected.');
       }
-    } else {
-      print('No file selected.');
+    } catch (e) {
+      print('Error picking file: $e');
     }
-  } catch (e) {
-    print('Error picking file: $e');
   }
-}
-
-
-
-
 
 void _downloadFile(FileApp file) async {
   try {
@@ -137,8 +149,16 @@ void _openFile(String filePath) async {
   } catch (e) {
     print('Error opening file: $e');
   }
+
 }
 
+  void DeleteFileApp(int courseId){
+    DeleteFile(courseId);
+    setState((){
+       widget.initialState = true;
+       files.removeWhere((file) => file.courseId == courseId);
+    });
+  }
 
  List<Widget> CreateContainers() {
   List<Widget> containers = [];
@@ -176,7 +196,7 @@ void _openFile(String filePath) async {
               ),
               SizedBox(width: 20),
               Text(
-                '${files[i].fileName}',
+                '${files[i].fileName.length > 10 ? files[i].fileName.substring(0, 10) + "..." : files[i].fileName}',
                 style: TextStyle(color: Colors.blue),
               ),
               SizedBox(width: 10),
@@ -184,6 +204,15 @@ void _openFile(String filePath) async {
                 onPressed: () => _downloadFile(files[i]),
                 child: Icon(Icons.download),
               ),
+              if(nivelAcces==3)
+              SizedBox(width: 10),
+              if(nivelAcces==3)
+              OutlinedButton(
+                onPressed: () => {
+                  DeleteFileApp(files[i].fileId)
+                  },
+                child: Icon(Icons.delete),
+              )
             ],
           ),
         ],
