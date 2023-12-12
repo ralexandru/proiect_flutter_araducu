@@ -93,8 +93,9 @@ class _DrawerProiectState extends State<DrawerProiect> {
         children: [
           UserAccountsDrawerHeader(
             currentAccountPicture: CircleAvatar(
-              backgroundImage: NetworkImage(
-                ('https://images.unsplash.com/photo-1485290334039-a3c69043e517?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTYyOTU3NDE0MQ&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=300'),
+              child: Text(
+                '${firstName.substring(0,1)}${lastName.substring(0,1)}',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
             accountEmail: Text(email),
@@ -111,8 +112,8 @@ class _DrawerProiectState extends State<DrawerProiect> {
                   MaterialPageRoute(builder: (context) => Profile()),
                 );
               }),
-          ListTile(title: const Text('Grades'), onTap: () {}),
-          ListTile(title: const Text('Settings'), onTap: () {}),
+          //ListTile(title: const Text('Grades'), onTap: () {}),
+          //ListTile(title: const Text('Settings'), onTap: () {}),
           SizedBox(height: 18),
           if(nivelAcces==3)
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -160,7 +161,7 @@ class _DrawerProiectState extends State<DrawerProiect> {
                   Navigator.push(
                     build,
                     MaterialPageRoute(
-                        builder: (context) => UsersList(title: "Add ")),
+                        builder: (context) => UsersList(title: "Add ", byCourse: false,)),
                   );
                 }),
           if(nivelAcces==3)

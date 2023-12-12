@@ -90,15 +90,15 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext build) {
-    return Scaffold(
-      body: Container(
-        color: const Color.fromARGB(255, 192, 218, 244),
-        child: Center(
+  return Scaffold(
+    body: Container(
+      color: const Color.fromARGB(255, 192, 218, 244),
+      child: Center(
+        child: SingleChildScrollView(
           child: Container(
             width: MediaQuery.of(build).size.width * 0.75,
             child: Column(
               children: [
-                const SizedBox(height: 60),
                 const Text('Praeceptor',
                     style: TextStyle(
                       color: Colors.white,
@@ -106,21 +106,31 @@ class _LoginState extends State<Login> {
                       fontWeight: FontWeight.bold,
                     )),
                 const SizedBox(height: 70.0),
-                FilledTextField(controller: usernameController, icon: Icon(Icons.person), labelText: 'Username', hintText: 'Enter username..'),
+                FilledTextField(
+                  controller: usernameController,
+                  icon: Icon(Icons.person),
+                  labelText: 'Username',
+                  hintText: 'Enter username..',
+                ),
                 const SizedBox(height: 30.0),
-                FilledTextField(controller: passwordController, icon: Icon(Icons.password), labelText: 'Password', hintText: 'Enter password..'),
+                FilledTextField(
+                  controller: passwordController,
+                  icon: Icon(Icons.password),
+                  labelText: 'Password',
+                  hintText: 'Enter password..',
+                  askMask: true
+                ),
                 const SizedBox(height: 40.0),
                 ElevatedButton(
                   onPressed: () {
                     LoginFunction();
-                    if (isLoggedIn){
+                    if (isLoggedIn) {
                       username = usernameController.text;
                       Navigator.push(
                         build,
                         MaterialPageRoute(builder: (context) => Homepage()),
                       );
-                    }
-                    else
+                    } else
                       showSnackBar(build);
                   },
                   style: ElevatedButton.styleFrom(
@@ -146,7 +156,8 @@ class _LoginState extends State<Login> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 
   void showSnackBar(BuildContext context) {
@@ -326,9 +337,9 @@ class Register extends StatelessWidget {
 
                      // TextInput(controller: NumeUtilizator, labelText: 'Username', maskText: false),
                       const SizedBox(height: 10),
-                      FilledTextField(controller: Parola, icon: Icon(Icons.password), labelText: 'Password', hintText: 'Enter password..'),
+                      FilledTextField(controller: Parola, icon: Icon(Icons.password), labelText: 'Password', hintText: 'Enter password..', askMask: true),
                       //TextInput(controller: Parola, labelText: 'Password', maskText: true),
-                      FilledTextField(controller: ParolaConfirma, icon: Icon(Icons.password), labelText: 'Confirm password', hintText: 'Confirm password..'),
+                      FilledTextField(controller: ParolaConfirma, icon: Icon(Icons.password), labelText: 'Confirm password', hintText: 'Confirm password..', askMask: true),
                       //TextInput(controller: ParolaConfirma, labelText: 'Confirm Password', maskText: true),
                       const SizedBox(height: 10),
                       FilledTextField(controller: Prenume, icon: Icon(Icons.person), labelText: 'First Name', hintText: 'Enter your first name..'),

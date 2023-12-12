@@ -29,7 +29,7 @@ class _FilesState extends State<Files> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Add domain",
+          "Back to course",
           style: TextStyle(color: Colors.blue),
         ),
         backgroundColor: Colors.white,

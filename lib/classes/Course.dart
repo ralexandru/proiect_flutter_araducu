@@ -246,3 +246,86 @@ Future<List<String>> fetchDomainsEnrolled(int? utilizatorId) async {
     throw Exception('Failed to load course info');   
   }
 }
+ Future<void> CreateBookmark(int courseId, int userId) async {
+    String? jwtToken = await getJWT();
+    HttpClient client = new HttpClient();
+    client.badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+    HttpClientRequest request = await client
+        .postUrl(Uri.parse("https://localhost:7097/api/Courses/curs-bookmark?cursId=$courseId&utilizatorId=$userId"));
+    request.headers.set('Content-Type', 'application/json');
+    request.headers.set('Authorization', 'Bearer ${jwtToken.toString()}');
+
+    HttpClientResponse result = await request.close();
+
+    print(result.statusCode);
+
+    if (result.statusCode == 200) {
+      print('Bookmark successfully added');
+    } else {
+      print('JWT TOKEN ' + jwtToken.toString());
+      print('Bookmark add failed!');
+    }
+  }
+
+  Future<List<Course>> fetchDataBookmark(String url) async {
+  final client = HttpClient()
+    ..badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+  try {
+    final request = await client.getUrl(Uri.parse(url));
+    final response = await request.close();
+    if (response.statusCode == 200) {
+      print(response.statusCode);
+      final List<dynamic> data =
+          json.decode(await response.transform(utf8.decoder).join());
+      return data.map((courseData) {
+        return Course(
+          CourseId: courseData['CursId'],
+          CourseName: courseData['CursDenumire'],
+          CourseShortDescription: courseData['CursScurtaDescriere'],
+          CourseLongDescription: courseData['CursLungaDescriere'],
+          StartDate: DateTime.parse(courseData['DataInceput']),
+          FinishDate: DateTime.parse(courseData['DataFinal']),
+          AvailableSeats: courseData['LocuriDisponibile'],
+          Price: courseData['Pret'],
+          DifficultyLevel: courseData['NivelDificultate'],
+        );
+      }).toList();
+    } else {
+      print('REQUEST STATUS FAILED WITH THE FOLLOWING CODE: ${response.statusCode}');
+      print('RESPONSE BODY: ${await response.transform(utf8.decoder).join()}');
+      print('REQUEST URL:' + url);
+      throw Exception('Failed to load data. Status code: ${response.statusCode}');
+
+    }
+  }catch (e) {
+    print('ERROR: $e');
+    throw Exception('Failed to load data. Error: $e');
+  }
+   finally {
+    client.close();
+  }
+}
+
+ Future<void> DeleteBookmark(int courseId, int userId) async {
+    String? jwtToken = await getJWT();
+    HttpClient client = new HttpClient();
+    client.badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+    HttpClientRequest request = await client
+        .deleteUrl(Uri.parse("https://localhost:7097/api/Courses/curs-bookmark?cursId=$courseId&utilizatorId=$userId"));
+    request.headers.set('Content-Type', 'application/json');
+    request.headers.set('Authorization', 'Bearer ${jwtToken.toString()}');
+
+    HttpClientResponse result = await request.close();
+
+    print(result.statusCode);
+
+    if (result.statusCode == 200) {
+      print('Bookmark successfully remove');
+    } else {
+      print('JWT TOKEN ' + jwtToken.toString());
+      print('Bookmark remove failed!');
+    }
+  }

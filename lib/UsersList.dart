@@ -5,9 +5,10 @@ List<User> users = [];
 
 class UsersList extends StatefulWidget {
   final ScrollController _scrollController = ScrollController();
+  final bool byCourse;
   final String title;
-
-  UsersList({Key? key, required this.title}) : super(key: key);
+  int? courseId;
+  UsersList({Key? key, required this.title, required this.byCourse,this.courseId}) : super(key: key);
 
   @override
   UsersListState createState() => UsersListState();
@@ -24,7 +25,13 @@ class UsersListState extends State<UsersList> {
 
   Future<void> _loadUsers() async {
     try {
-      List<User> loadedImages = await retrieveUsers();
+      print(widget.byCourse);
+      
+      List<User> loadedImages = [];
+      if(widget.byCourse==false)
+        loadedImages = await retrieveUsers();
+      else if(widget.byCourse==true)
+        loadedImages = await retrieveUsersByCourse(widget.courseId!);
       setState(() {
         users = loadedImages;
       });
@@ -245,10 +252,12 @@ class _UserProfileCardState extends State<UserProfileCard> {
           Row(
             children: [
               Icon(Icons.email),
-              Text(
+               Flexible(
+               child: Text(
                 "Email: ${widget.user.email}",
                 style: TextStyle(fontSize: 18),
-              ),
+                overflow: TextOverflow.ellipsis, 
+              ),)
             ],
           ),
           Row(

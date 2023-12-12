@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:proiect_flutter_araducu/NavigationDrawer.dart';
+import 'package:proiect_flutter_araducu/UsersList.dart';
 import 'package:proiect_flutter_araducu/classes/DomainOfStudy.dart';
 import 'classes/Course.dart';
 import 'package:intl/intl.dart';
@@ -75,13 +77,13 @@ class _CoursePageState extends State<CoursePage> {
 
   @override
   Widget build(BuildContext context) {
-
+    
     fetchCourseInfo(widget.CourseId);
     return 
     Scaffold(
       appBar: AppBar(
         // The title text which will be shown on the action bar
-        title: Text(widget.title),
+        title: Text(widget.title, style: TextStyle(color: Colors.blue)),
         backgroundColor: Colors.white,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.blue),
@@ -101,6 +103,7 @@ class _CoursePageState extends State<CoursePage> {
           } else if (!snapshot.hasData || snapshot.data == null) {
             return Text('No course data available');
           } 
+          
             Course course = snapshot.data!;
             int? idDomain = course.DomainId;
             print("ID DOMAIN: $idDomain");
@@ -115,7 +118,21 @@ class _CoursePageState extends State<CoursePage> {
             return Text('No domain data available');
           } else {
             DomainOfStudy domain = domainSnapshot.data!;
-           
+           return FutureBuilder<List<Course>>(
+                  future: fetchDataBookmark('https://localhost:7097/api/Courses/cursuri-bookmark?utilizatorId=$userId'),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else if (!snapshot.hasData || snapshot.data == null) {
+            return Text('No bookmarked courses available');
+          } else {
+            List<Course> bookmarkedCourses = snapshot.data!;
+            bool isBookmarked = bookmarkedCourses.any((course) => course.CourseId == widget.CourseId);
+
         return SingleChildScrollView(
         controller: _scrollController,
         scrollDirection: Axis.vertical,
@@ -190,7 +207,8 @@ class _CoursePageState extends State<CoursePage> {
                 ],
               ),
               SizedBox(height: 10),
-              Container(margin: EdgeInsets.all(10), child: OutlinedButton(child: Row(children: [Icon(Icons.edit),SizedBox(width:15),Text('Upload new banner picture')]), onPressed: () => {
+              if(nivelAcces==3)
+              Container(margin: EdgeInsets.symmetric(horizontal: 20), child: OutlinedButton(child: Row(children: [Icon(Icons.edit),SizedBox(width:15),Text('Upload new banner picture')]), onPressed: () => {
                 _openFilePicker(course)
               })),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -214,11 +232,49 @@ class _CoursePageState extends State<CoursePage> {
                       style: TextStyle(color: Colors.blue))]),
                 ),
                 SizedBox(width: 10),
+                if(!isBookmarked)
                 OutlinedButton(
-                  onPressed: () => {},
+                  onPressed: () => {
+                    CreateBookmark(course.CourseId!, userId),
+                                        setState((){
+                      isBookmarked=true;
+                    })
+                  },
                   child: Row(children: [Icon(Icons.star),Text('Add course to favorites')]),
                 ),
+          
+              if(isBookmarked)
+                              OutlinedButton(
+                  onPressed: () => {
+                    DeleteBookmark(course.CourseId!, userId),
+                    setState((){
+                      isBookmarked=false;
+                    })
+                  },
+                  child: Row(children: [Icon(Icons.star),Text('Remove course from favorites')]),
+                ),
               ]),
+                SizedBox(width: 10),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 25),
+                  child: OutlinedButton(
+                    onPressed: () => {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                            UsersList(title: 'Users enrolled', byCourse: true, courseId: course.CourseId)))
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center, // Center content horizontally
+                      children: [
+                        Icon(Icons.people),
+                        SizedBox(width: 8), // Adjust the spacing between icon and text
+                        Text('Users enrolled in this course'),
+                      ],
+                    ),
+                  ),
+                ),
               SizedBox(height: 10),
               Row(children: [
                 SizedBox(width: 20),
@@ -288,53 +344,58 @@ class _CoursePageState extends State<CoursePage> {
         }
       );
       }
-    )
+  });})
     );
   }
 }
 
-  List<Widget> createContainers(List<CourseMeeting>? meetings) {
-    List<Widget> containers = [];
-  
+List<Widget> createContainers(List<CourseMeeting>? meetings) {
+  List<Widget> containers = [];
 
-    if(meetings != null)
+  if (meetings != null)
     for (int i = 0; i < meetings.length; i++) {
       bool edit = false;
 
       Container container = Container(
-                  margin: EdgeInsets.all(16.0),
-                  padding: EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blue),
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: Offset(0, 3),
-                        )
-                      ]),
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(meetings[i].CourseMeetingName,
-                            style: TextStyle(
-                              fontSize: 20,
-                            )),
-                        Row(
-                          children: [
-                            Icon(Icons.calendar_month),
-                            SizedBox(width: 6),
-                            Text(DateFormat('yyyy-MM-dd hh:mm').format(meetings[i].CourseMeetingDate),
-                                style: TextStyle(fontSize: 16)),
-                          ],
-                        ),
-                      ]));
+        margin: EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.blue),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            )
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
+          children: [
+            Text(
+              meetings[i].CourseMeetingName,
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            Row(
+              children: [
+                Icon(Icons.calendar_month),
+                SizedBox(width: 6),
+                Text(
+                  DateFormat('yyyy-MM-dd hh:mm').format(meetings[i].CourseMeetingDate),
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
 
       containers.add(container);
     }
-    return containers;
-  }
-
+  return containers;
+}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:proiect_flutter_araducu/BookmarkedCourses.dart';
 import 'Courses.dart';
 import 'Home.dart';
 
@@ -20,10 +21,7 @@ class _BottomNavigationBarProiectState
   static const List<Widget> navigationOptions = <Widget>[
     Home(),
     CoursesPage(),
-    Text(
-      'Index 2: Classes',
-      style: navigationStyle,
-    )
+    BookMarkedCourse(),
   ];
   // Function which updates the selected index with the value of the index given as a parameter
   void changeIndex(int index) {
@@ -55,12 +53,12 @@ class _BottomNavigationBarProiectState
               BottomNavigationBarItem(
                 icon: Icon(Icons.book),
                 label: 'Courses',
-                backgroundColor: Color.fromARGB(255, 121, 186, 238),
+                backgroundColor: Color.fromARGB(255, 51, 142, 217),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.school),
-                label: 'Classes',
-                backgroundColor: Color.fromARGB(255, 121, 186, 238),
+                icon: Icon(Icons.star),
+                label: 'Bookmarks',
+                backgroundColor: Color.fromARGB(255, 241, 245, 118),
               ),
             ],
           ),

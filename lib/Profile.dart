@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'NavigationDrawer.dart';
+import 'commonClasses/utilities.dart';
 class Profile extends StatefulWidget {
   final ScrollController _scrollController = ScrollController();
   Profile({super.key});
@@ -48,16 +49,7 @@ class _ProfileState extends State<Profile> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                          100.0), // Adjust the border radius as needed
-                      child: Image.network(
-                        'https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg?w=740', // Replace with your image URL
-                        width: 100.0,
-                        height: 100.0,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                    InitialsAvatar(initials: '${firstName.substring(0,1)}${lastName.substring(0,1)}'),
                     SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -162,15 +154,25 @@ class _ProfileState extends State<Profile> {
                   ],
                 ),
               ),
-                OutlinedButton(
-                  onPressed: () => _showChangePasswordDialog(context),
-                  child: Text('Modify Password'),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 20), // Adjust the horizontal margin as needed
+              child: OutlinedButton(
+                onPressed: () => _showChangePasswordDialog(context),
+                child: Text('Modify Password'),
+                  style: OutlinedButton.styleFrom(
+                   minimumSize: Size(300, 50),) 
+              ),
+            ),
+            SizedBox(height: 20),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 20), // Adjust the horizontal margin as needed
+              child: OutlinedButton(
+                onPressed: () => _showChangeEmailDialog(context),
+                child: Text('Modify Email'),
+                  style: OutlinedButton.styleFrom(
+                   minimumSize: Size(300, 50),)               
                 ),
-                SizedBox(height: 20),
-                OutlinedButton(
-                  onPressed: () => _showChangeEmailDialog(context),
-                  child: Text('Modify Email'),
-                ),
+            ),
               SizedBox(height: 20)
             ]),
           ),

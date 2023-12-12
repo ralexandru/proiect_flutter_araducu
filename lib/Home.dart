@@ -6,7 +6,9 @@ import 'Profile.dart';
 import 'Courses.dart';
 import 'classes/News.dart';
 import 'commonClasses/NewsP.dart';
+import 'Courses.dart';
 import 'classes/CarouselImage.dart';
+import 'BookmarkedCourses.dart';
 class Home extends StatefulWidget {
   const Home();
   @override
@@ -139,8 +141,10 @@ void DeleteNewsApp(int newsId){
                   ),
                   SizedBox(width: 20),
                   CircularButton(
-                    iconData: Icons.book,
-                    onPressed: () => {},
+                    iconData: Icons.star,
+                    onPressed: () => {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => BookMarkedCourse()))                    },
                     color: Colors.blue,
                   ),
                   SizedBox(width: 20),
@@ -222,7 +226,12 @@ void DeleteNewsApp(int newsId){
                           style: TextStyle(
                             color: Colors.blue,
                           )),
-                      onPressed: () => {},
+                      onPressed: () => {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CoursesPage()))
+                      },
                     )
                   ]),
                   SizedBox(height: 10),

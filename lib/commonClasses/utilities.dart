@@ -8,6 +8,8 @@ class FilledTextField extends StatelessWidget {
   final String hintText;
   final Icon icon;
   bool? editable = true;
+  bool maskText = false;
+  bool? askMask = false;
 
   FilledTextField({
     super.key,
@@ -16,10 +18,14 @@ class FilledTextField extends StatelessWidget {
     required this.labelText,
     required this.hintText,
     this.editable,
+    this.askMask,
   });
 
   @override
   Widget build(BuildContext context) {
+    if(askMask != null){
+      maskText = askMask ?? false;
+    }
     return TextField(
       controller: controller,
       enabled: editable,
@@ -29,6 +35,7 @@ class FilledTextField extends StatelessWidget {
         hintText: hintText,
         filled: false,
       ),
+      obscureText: maskText
     );
   }
 }
@@ -86,6 +93,34 @@ class TextArea extends StatelessWidget {
       decoration: InputDecoration(
         labelText: labelText,
         border: OutlineInputBorder(),
+      ),
+    );
+  }
+}
+class InitialsAvatar extends StatelessWidget {
+  final String initials;
+  final double size;
+
+  InitialsAvatar({required this.initials, this.size = 100.0});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Colors.blue, // Choose your preferred background color
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Text(
+          initials,
+          style: TextStyle(
+            color: Colors.white, // Choose your preferred text color
+            fontSize: size * 0.4, // Adjust the font size as needed
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }
