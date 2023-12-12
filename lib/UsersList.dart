@@ -1,33 +1,7 @@
 import 'package:flutter/material.dart';
 import 'classes/User.dart';
 
-User user1 = User(
-  userId: 1,
-  username: 'test',
-  firstName: 'Test',
-  lastName: 'Test2',
-  email: 'test@test.com',
-  phoneNo: '071231312',
-  country: 'Romania',
-  city: 'Bucharest',
-  birthday: '11/01/199',
-  accessLevel: 1,
-);
-
-User user2 = User(
-  userId: 21,
-  username: 'asd',
-  firstName: 'Test',
-  lastName: 'Test2',
-  email: 'test@test.com',
-  phoneNo: '071231312',
-  country: 'Romania',
-  city: 'Bucharest',
-  birthday: '11/01/199',
-  accessLevel: 3,
-);
-
-List<User> users = [user1, user2];
+List<User> users = [];
 
 class UsersList extends StatefulWidget {
   final ScrollController _scrollController = ScrollController();
@@ -41,6 +15,23 @@ class UsersList extends StatefulWidget {
 
 class UsersListState extends State<UsersList> {
   String searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsers();
+  }
+
+  Future<void> _loadUsers() async {
+    try {
+      List<User> loadedImages = await retrieveUsers();
+      setState(() {
+        users = loadedImages;
+      });
+    } catch (error) {
+      print('Error loading users: $error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,184 +84,212 @@ class UsersListState extends State<UsersList> {
         .toList();
 
     for (int i = 0; i < filteredUsers.length; i++) {
-      Container container = Container(
-        padding: EdgeInsets.all(20),
-        margin: EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.blue),
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 3),
-            )
-          ],
-        ),
-        child: Column(
-          children: [
-            if (filteredUsers[i].accessLevel < 3)
-              OutlinedButton(
-                onPressed: () {
-                  setState(() {
-                    print('User ID: ${filteredUsers[i].userId}');
-                    filteredUsers[i].accessLevel = 3;
-                  });
-                },
-                child: Row(children: [
-                  Icon(Icons.admin_panel_settings),
-                  Text('Promote user to admin')
-                ]),
-              ),
-            if (filteredUsers[i].accessLevel == 3)
-              OutlinedButton(
-                onPressed: () {
-                  setState(() {
-                    print('User ID: ${filteredUsers[i].userId}');
-                    // Perform the demotion logic
-                    filteredUsers[i].accessLevel = 1;
-                  });
-                },
-                child: Row(children: [
-                  Icon(Icons.person),
-                  Text('Demote admin to user')
-                ]),
-              ),
-            SizedBox(height: 10),
+      containers.add(UserProfileCard(
+        user: filteredUsers[i],
+        onDeleteSuccess: () async {
+          await _loadUsers();
+          setState(() {
+            filteredUsers.removeAt(i);
+          });
+        },
+      ));
+    }
+    return containers;
+  }
+}
+
+class UserProfileCard extends StatefulWidget {
+  final User user;
+  final VoidCallback? onDeleteSuccess;
+
+  UserProfileCard({required this.user, this.onDeleteSuccess, Key? key})
+      : super(key: key);
+
+  @override
+  _UserProfileCardState createState() => _UserProfileCardState();
+}
+
+class _UserProfileCardState extends State<UserProfileCard> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(20),
+      margin: EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.blue),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          )
+        ],
+      ),
+      child: Column(
+        children: [
+          if (widget.user.accessLevel < 3)
             OutlinedButton(
               onPressed: () {
                 setState(() {
-                  print('User ID: ${filteredUsers[i].userId}');
-                  // Perform the demotion logic
+                  print('User ID: ${widget.user.userId}');
+                  widget.user.accessLevel = 3;
+                  widget.user.UpdateUserAccess();
                 });
               },
               child: Row(children: [
-                Icon(Icons.recycling, color: Colors.red),
-                Text('Delete user', style: TextStyle(color: Colors.red))
+                Icon(Icons.admin_panel_settings),
+                Text('Promote user to admin')
               ]),
             ),
-            SizedBox(height: 10),
-            ClipOval(
-              child: Image.network(
-                'https://t4.ftcdn.net/jpg/02/29/75/83/240_F_229758328_7x8jwCwjtBMmC6rgFzLFhZoEpLobB6L8.jpg',
-                width: 100.0,
-                height: 100.0,
-                fit: BoxFit.cover,
+          if (widget.user.accessLevel == 3)
+            OutlinedButton(
+              onPressed: () {
+                setState(() {
+                  print('User ID: ${widget.user.userId}');
+                  // Perform the demotion logic
+                  widget.user.accessLevel = 1;
+                  print(
+                      "FILTERED USER ACCESS LEVEL: ${widget.user.accessLevel}");
+                  widget.user.UpdateUserAccess();
+                });
+              },
+              child: Row(children: [
+                Icon(Icons.person),
+                Text('Demote admin to user')
+              ]),
+            ),
+          SizedBox(height: 10),
+          OutlinedButton(
+            onPressed: () async {
+              await widget.user.DeleteUser();
+              if (widget.onDeleteSuccess != null) {
+                widget.onDeleteSuccess!();
+              }
+            },
+            child: Row(children: [
+              Icon(Icons.recycling, color: Colors.red),
+              Text('Delete user', style: TextStyle(color: Colors.red)),
+            ]),
+          ),
+          SizedBox(height: 10),
+          ClipOval(
+            child: Image.network(
+              'https://t4.ftcdn.net/jpg/02/29/75/83/240_F_229758328_7x8jwCwjtBMmC6rgFzLFhZoEpLobB6L8.jpg',
+              width: 100.0,
+              height: 100.0,
+              fit: BoxFit.cover,
+            ),
+          ),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (widget.user.accessLevel < 3)
+                Icon(
+                  Icons.person,
+                  color: Colors.blue,
+                ),
+              if (widget.user.accessLevel == 3)
+                Icon(
+                  Icons.admin_panel_settings,
+                  color: Colors.blue,
+                ),
+              Text(
+                'User info',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
+            ],
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 50.0),
+            child: Divider(
+              color: Colors.blue,
+              thickness: 1,
             ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (filteredUsers[i].accessLevel < 3)
-                  Icon(
-                    Icons.person,
-                    color: Colors.blue,
-                  ),
-                if (filteredUsers[i].accessLevel == 3)
-                  Icon(
-                    Icons.admin_panel_settings,
-                    color: Colors.blue,
-                  ),
-                Text(
-                  'User info',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 50.0),
-              child: Divider(
-                color: Colors.blue,
-                thickness: 1,
+          ),
+          SizedBox(height: 20),
+          Row(
+            children: [
+              Icon(Icons.person),
+              Text(
+                "Username: ${widget.user.username}",
+                style: TextStyle(fontSize: 18),
               ),
-            ),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Icon(Icons.person),
-                Text(
-                  "Username: ${filteredUsers[i].username}",
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(Icons.person),
-                Text(
-                  "Name: ${filteredUsers[i].firstName} ${filteredUsers[i].lastName}",
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(Icons.cake),
-                Text(
-                  "Birthday: ${filteredUsers[i].birthday}",
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(Icons.email),
-                Text(
-                  "Email: ${filteredUsers[i].email}",
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(Icons.phone),
-                Text(
-                  "Phone No: ${filteredUsers[i].phoneNo}",
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(Icons.flag),
-                Text(
-                  "Country: ${filteredUsers[i].country}",
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(Icons.pin),
-                Text(
-                  "City: ${filteredUsers[i].city}",
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(Icons.person),
-                Text(
-                  "Access level: ${filteredUsers[i].accessLevel}",
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-          ],
-        ),
-      );
-
-      containers.add(container);
-    }
-    return containers;
+            ],
+          ),
+          Row(
+            children: [
+              Icon(Icons.person),
+              Text(
+                "Name: ${widget.user.firstName} ${widget.user.lastName}",
+                style: TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Icon(Icons.cake),
+              Text(
+                "Birthday: ${widget.user.birthday}",
+                style: TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Icon(Icons.email),
+              Text(
+                "Email: ${widget.user.email}",
+                style: TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Icon(Icons.phone),
+              Text(
+                "Phone No: ${widget.user.phoneNo}",
+                style: TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Icon(Icons.flag),
+              Text(
+                "Country: ${widget.user.country}",
+                style: TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Icon(Icons.pin),
+              Text(
+                "City: ${widget.user.city}",
+                style: TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Icon(Icons.person),
+              Text(
+                "Access level: ${widget.user.accessLevel}",
+                style: TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+          SizedBox(height: 20),
+        ],
+      ),
+    );
   }
 }

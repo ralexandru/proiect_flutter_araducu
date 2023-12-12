@@ -10,6 +10,7 @@ import 'UsersList.dart';
 import 'CreateDomain.dart';
 import 'ManageDomains.dart';
 import 'AddNews.dart';
+import 'classes/User.dart';
 int userId = 0;
 String username = '';
 String email = '';
@@ -20,7 +21,7 @@ String phoneNumber = '';
 int nivelAcces = 0;
 String city = '';
 String birthday = '';
-
+User? user;
 //ignore: must_be_immutable
 Future<void> getUserData() async {
   final client = HttpClient()
@@ -29,7 +30,8 @@ Future<void> getUserData() async {
 
   try {
     final request = await client.getUrl(Uri.parse(
-        'https://localhost:7097/api/User/info-utilizator?username="test123"'));
+        "https://localhost:7097/api/User/info-utilizator?username='${username}'"));
+        print('REQUEST Username: $username');
     final response = await request.close();
     if (response.statusCode == 200) {
       print(response.statusCode);
@@ -44,6 +46,18 @@ Future<void> getUserData() async {
       userId = data['UtilizatorId'];
       nivelAcces = data['NivelAcces'];
       print(firstName);
+      user = new User(
+       userId: data["UtilizatorId"],
+       username: data["NumeUtilizator"],
+       firstName: data['Prenume'],
+       lastName: data['NumeFamilie'],
+       email: data['AdresaMail'],
+       phoneNo: data['NrTelefon'],
+       country: data['Tara'],
+       city: data['Adresa'],
+       birthday: data['DataNasterii'],
+       accessLevel: data['NivelAcces']);
+       user!.PrintUser();
     } else {
       throw Exception('Failed to load data');
     }
@@ -100,6 +114,7 @@ class _DrawerProiectState extends State<DrawerProiect> {
           ListTile(title: const Text('Grades'), onTap: () {}),
           ListTile(title: const Text('Settings'), onTap: () {}),
           SizedBox(height: 18),
+          if(nivelAcces==3)
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(Icons.admin_panel_settings),
             Text('Admin options', style: TextStyle(fontSize: 15)),

@@ -100,7 +100,7 @@ class _CoursesPageState extends State<CoursesPage> {
   void initState() {
     print("Nivel access: ${nivelAcces}");
     super.initState();
-    fetchData('https://localhost:7097/api/Courses/cursuri-neinscris')
+    fetchData('https://localhost:7097/api/Courses/cursuri-neinscris?utilizatorId=${user!.userId}')
         .then((data) {
       if (data.isNotEmpty) {
         print(data[0].CourseName);
@@ -113,7 +113,7 @@ class _CoursesPageState extends State<CoursesPage> {
       }
     });
 
-    fetchData('https://localhost:7097/api/Courses/cursuri-inscris')
+    fetchData('https://localhost:7097/api/Courses/cursuri-inscris?utilizatorId=${user!.userId}')
         .then((data) {
       setState(() {
         coursesEnrolled = data;

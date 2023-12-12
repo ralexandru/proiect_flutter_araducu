@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'NavigationDrawer.dart';
-
-class Profile extends StatelessWidget {
+class Profile extends StatefulWidget {
   final ScrollController _scrollController = ScrollController();
   Profile({super.key});
+
+  @override
+  _ProfileState createState() => _ProfileState();
+}
+class _ProfileState extends State<Profile> {
+  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +63,7 @@ class Profile extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.person, size: 28, color: Colors.blue),
-                        Text(firstName + ' ' + lastName,
+                        Text(user!.firstName + ' ' + user!.lastName,
                             style: TextStyle(
                                 fontSize: 20,
                                 color: Colors.blue,
@@ -81,7 +86,7 @@ class Profile extends StatelessWidget {
                         Container(
                             margin: EdgeInsets.symmetric(horizontal: 50),
                             child: Divider(color: Colors.blue, thickness: 1)),
-                        Text('Romania', style: TextStyle(fontSize: 20))
+                        Text(user!.country, style: TextStyle(fontSize: 20))
                       ],
                     ),
                     SizedBox(height: 20),
@@ -99,7 +104,7 @@ class Profile extends StatelessWidget {
                         Container(
                             margin: EdgeInsets.symmetric(horizontal: 50),
                             child: Divider(color: Colors.blue, thickness: 1)),
-                        Text(city, style: TextStyle(fontSize: 20))
+                        Text(user!.city, style: TextStyle(fontSize: 20))
                       ],
                     ),
                     SizedBox(height: 20),
@@ -116,7 +121,7 @@ class Profile extends StatelessWidget {
                         Container(
                             margin: EdgeInsets.symmetric(horizontal: 50),
                             child: Divider(color: Colors.blue, thickness: 1)),
-                        Text(phoneNumber, style: TextStyle(fontSize: 20))
+                        Text(user!.phoneNo, style: TextStyle(fontSize: 20))
                       ],
                     ),
                     SizedBox(height: 20),
@@ -133,7 +138,7 @@ class Profile extends StatelessWidget {
                         Container(
                             margin: EdgeInsets.symmetric(horizontal: 50),
                             child: Divider(color: Colors.blue, thickness: 1)),
-                        Text(email, style: TextStyle(fontSize: 20))
+                        Text(user!.email, style: TextStyle(fontSize: 20))
                       ],
                     ),
                     SizedBox(height: 20),
@@ -151,16 +156,21 @@ class Profile extends StatelessWidget {
                         Container(
                             margin: EdgeInsets.symmetric(horizontal: 50),
                             child: Divider(color: Colors.blue, thickness: 1)),
-                        Text(birthday, style: TextStyle(fontSize: 20))
+                        Text(user!.birthday, style: TextStyle(fontSize: 20))
                       ],
                     ),
                   ],
                 ),
               ),
-              OutlinedButton(
-                  onPressed: () => {}, child: Text('Modify password')),
-              SizedBox(height: 20),
-              OutlinedButton(onPressed: () => {}, child: Text('Modify email')),
+                OutlinedButton(
+                  onPressed: () => _showChangePasswordDialog(context),
+                  child: Text('Modify Password'),
+                ),
+                SizedBox(height: 20),
+                OutlinedButton(
+                  onPressed: () => _showChangeEmailDialog(context),
+                  child: Text('Modify Email'),
+                ),
               SizedBox(height: 20)
             ]),
           ),
@@ -168,4 +178,83 @@ class Profile extends StatelessWidget {
       ),
     );
   }
+    void _showChangePasswordDialog(BuildContext context) {
+    TextEditingController newPasswordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Change Password'),
+          content: TextField(
+            controller: newPasswordController,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: 'New Password',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                String newPassword = newPasswordController.text;
+                user!.UpdateUserPassword(newPassword);
+                // Add your password change logic here
+                print('New Password: $newPassword');
+                Navigator.of(context).pop();
+              },
+              child: Text('Save Changes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showChangeEmailDialog(BuildContext context) {
+    TextEditingController newEmailController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Change Email'),
+          content: TextField(
+            controller: newEmailController,
+            decoration: InputDecoration(
+              labelText: 'New Email',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                String newEmail = newEmailController.text;
+                                setState(() {
+                  user!.email = newEmail;
+                });
+                // Add your email change logic here
+                user!.email = newEmail;
+                user!.UpdateUserEmail();
+                print('New Email: $newEmail');
+                Navigator.of(context).pop();
+              },
+              child: Text('Save Changes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
+

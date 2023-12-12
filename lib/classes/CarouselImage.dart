@@ -83,7 +83,7 @@ Future<void> DeleteImage(int imageId) async {
   request.headers.set('Authorization', 'Bearer ${jwtToken.toString()}');
 
   HttpClientResponse response = await request.close();
-
+  print("URL $url");
   if (response.statusCode == 200) {
     print('Image deleted successfully');
   } else {

@@ -6,6 +6,7 @@ import 'Profile.dart';
 import 'Courses.dart';
 import 'classes/News.dart';
 import 'commonClasses/NewsP.dart';
+import 'classes/CarouselImage.dart';
 class Home extends StatefulWidget {
   const Home();
   @override
@@ -386,23 +387,32 @@ class CircularButton extends StatelessWidget {
 }
 
 class MyCard extends StatelessWidget {
-  final Color containerColor = Colors.red;
   final String image;
+
   MyCard(this.image, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 20),
-      child: Container(
-        decoration: BoxDecoration(
-            image:
-                DecorationImage(image: NetworkImage(image), fit: BoxFit.fill),
-            borderRadius: const BorderRadius.all(Radius.circular(20))),
-      ),
-    );
+    if (image.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 20, right: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: NetworkImage(image),
+              fit: BoxFit.fill,
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(20)),
+          ),
+        ),
+      );
+    } else {
+      // Handle the case when the image URL is empty
+      return Placeholder(); // Replace with your desired placeholder
+    }
   }
 }
+
 
 class Carousel extends StatefulWidget {
   Carousel({Key? key}) : super(key: key);
@@ -410,23 +420,41 @@ class Carousel extends StatefulWidget {
   @override
   State<Carousel> createState() => _CarouselState();
 }
-
 class _CarouselState extends State<Carousel> {
   List<Color> colors = [Colors.teal, Colors.blue, Colors.pink];
-  List<String> images = [''];
+  List<CarouselImage> images = [];
   int position = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImages();
+  }
+
+  Future<void> _loadImages() async {
+    try {
+      List<CarouselImage> loadedImages = await retrieveImages();
+      setState(() {
+        images = loadedImages;
+      });
+    } catch (error) {
+      print('Error loading images: $error');
+    }
+  }
+
+  Widget myCircle(int p) {
+    return Container(
+      height: 15,
+      width: 15,
+      decoration: BoxDecoration(
+        color: position == p ? colors[p] : Colors.grey.shade300,
+        borderRadius: const BorderRadius.all(Radius.circular(25)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    Widget myCircle(int p) {
-      return Container(
-        height: 15,
-        width: 15,
-        decoration: BoxDecoration(
-            color: position == p ? colors[p] : Colors.grey.shade300,
-            borderRadius: const BorderRadius.all(Radius.circular(25))),
-      );
-    }
-
     return SizedBox(
       height: 255,
       child: Column(
@@ -436,30 +464,29 @@ class _CarouselState extends State<Carousel> {
           SizedBox(
             height: 225,
             child: PageView.builder(
-                onPageChanged: (pageposition) {
-                  setState(() {
-                    position = pageposition;
-                  });
-                },
-                itemCount: colors.length,
-                itemBuilder: (context, pagePosition) {
-                  return MyCard(images[pagePosition]);
-                }),
+              key: Key("carousel_page_view"),
+              onPageChanged: (pageposition) {
+                print('Page changed: $pageposition');
+                setState(() {
+                  position = pageposition;
+                });
+              },
+              itemCount: images.length,
+              itemBuilder: (context, pagePosition) {
+                return MyCard(images[pagePosition].ImageUrl);
+              },
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               myCircle(0),
-              const SizedBox(
-                width: 10,
-              ),
+              const SizedBox(width: 10),
               myCircle(1),
-              const SizedBox(
-                width: 10,
-              ),
+              const SizedBox(width: 10),
               myCircle(2),
             ],
-          )
+          ),
         ],
       ),
     );

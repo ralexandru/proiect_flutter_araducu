@@ -18,8 +18,11 @@ List<Widget> CreateImagesContainer(List<CarouselImage> images){
     Column column = Column(children: [
       Text(images[i].ImageUrl),
       OutlinedButton(child: Text("Delete"),onPressed: () => {
-        DeleteImage(images[i].ImageId)
-      }),
+        DeleteImage(images[i].ImageId),
+         setState(() {
+        images.removeWhere((image) => image.ImageId==images[i].ImageId);
+      })}
+      ),
       SizedBox(height:20)],
       
     );

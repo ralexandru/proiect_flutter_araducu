@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 import 'NavigationDrawer.dart';
+import 'commonClasses/utilities.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -105,24 +106,20 @@ class _LoginState extends State<Login> {
                       fontWeight: FontWeight.bold,
                     )),
                 const SizedBox(height: 70.0),
-                TextInput(
-                    controller: usernameController,
-                    labelText: 'Username',
-                    maskText: false),
+                FilledTextField(controller: usernameController, icon: Icon(Icons.person), labelText: 'Username', hintText: 'Enter username..'),
                 const SizedBox(height: 30.0),
-                TextInput(
-                    controller: passwordController,
-                    labelText: 'Password',
-                    maskText: true),
+                FilledTextField(controller: passwordController, icon: Icon(Icons.password), labelText: 'Password', hintText: 'Enter password..'),
                 const SizedBox(height: 40.0),
                 ElevatedButton(
                   onPressed: () {
                     LoginFunction();
-                    if (isLoggedIn)
+                    if (isLoggedIn){
+                      username = usernameController.text;
                       Navigator.push(
                         build,
                         MaterialPageRoute(builder: (context) => Homepage()),
                       );
+                    }
                     else
                       showSnackBar(build);
                   },
@@ -197,7 +194,7 @@ class DropdownFormState extends State<DropdownForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(widget.labelText),
-        DropdownButton<String>(
+        DropdownButtonFormField<String>(
           value: selectedCountry,
           onChanged: (String? newValue) {
             if (newValue != null) {
@@ -263,7 +260,7 @@ class Register extends StatelessWidget {
     client.badCertificateCallback =
         ((X509Certificate cert, String host, int port) => true);
     HttpClientRequest request = await client
-        .postUrl(Uri.parse("https://localhost:7097/api/Register/register"));
+        .postUrl(Uri.parse("https://localhost:7097/api/Register/register-student"));
     request.headers.set('Content-Type', 'application/json');
     request.add(utf8.encode(jsonEncode(<String, String>{
       'NumeUtilizator': NumeUtilizator.text,
@@ -325,43 +322,30 @@ class Register extends StatelessWidget {
                       const SizedBox(height: 25.0),
                       ProfilePicture(),
                       const SizedBox(height: 25.0),
-                      TextInput(
-                          controller: NumeUtilizator,
-                          labelText: 'Username',
-                          maskText: false),
+                      FilledTextField(controller: NumeUtilizator, icon: Icon(Icons.person), labelText: 'Username', hintText: 'Enter username..'),
+
+                     // TextInput(controller: NumeUtilizator, labelText: 'Username', maskText: false),
                       const SizedBox(height: 10),
-                      TextInput(
-                          controller: Parola,
-                          labelText: 'Password',
-                          maskText: true),
-                      TextInput(
-                          controller: ParolaConfirma,
-                          labelText: 'Confirm Password',
-                          maskText: true),
+                      FilledTextField(controller: Parola, icon: Icon(Icons.password), labelText: 'Password', hintText: 'Enter password..'),
+                      //TextInput(controller: Parola, labelText: 'Password', maskText: true),
+                      FilledTextField(controller: ParolaConfirma, icon: Icon(Icons.password), labelText: 'Confirm password', hintText: 'Confirm password..'),
+                      //TextInput(controller: ParolaConfirma, labelText: 'Confirm Password', maskText: true),
                       const SizedBox(height: 10),
-                      TextInput(
-                          controller: Prenume,
-                          labelText: 'First Name',
-                          maskText: false),
+                      FilledTextField(controller: Prenume, icon: Icon(Icons.person), labelText: 'First Name', hintText: 'Enter your first name..'),
+                      //TextInput(controller: Prenume, labelText: 'First Name', maskText: false),
                       const SizedBox(height: 10),
-                      TextInput(
-                          controller: NumeFamilie,
-                          labelText: 'Last Name',
-                          maskText: false),
+                      FilledTextField(controller: NumeFamilie, icon: Icon(Icons.person), labelText: 'Last Name', hintText: 'Enter your last name..'),
+                      //TextInput(controller: NumeFamilie, labelText: 'Last Name', maskText: false),
                       const SizedBox(height: 10),
-                      TextInput(
-                          controller: AdresaMail,
-                          labelText: 'Email address',
-                          maskText: false),
+                      FilledTextField(controller: AdresaMail, icon: Icon(Icons.email), labelText: 'Email address', hintText: 'Enter your email address..'),
+                      //TextInput(controller: AdresaMail, labelText: 'Email address', maskText: false),
                       const SizedBox(height: 10),
-                      TextInput(
-                          controller: NrTelefon,
-                          labelText: 'NrTelefon',
-                          maskText: false),
-                      const SizedBox(height: 10),
+                      FilledTextField(controller: NrTelefon, icon: Icon(Icons.phone), labelText: 'Phone number', hintText: 'Enter your phone number..'),
+                      //TextInput(controller: NrTelefon, labelText: 'NrTelefon', maskText: false),
+                      const SizedBox(height: 20),
                       const Text('Date of birth:'),
                       DateTimePicker(onDateSelected: updateBirthdayDate),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 30),
                       const Text('Country:'),
                       DropdownForm(
                         key: countryKey,
@@ -370,11 +354,9 @@ class Register extends StatelessWidget {
                         labelText: 'Tara',
                       ),
                       const SizedBox(height: 10),
-                      TextInput(
-                          controller: Adresa,
-                          labelText: 'Adresa',
-                          maskText: false),
-                      const SizedBox(height: 10),
+                      FilledTextField(controller: Adresa, icon: Icon(Icons.pin_drop), labelText: 'Address', hintText: 'Enter your address..'),
+                      //TextInput(controller: Adresa, labelText: 'Adresa', maskText: false),
+                      const SizedBox(height: 30),
                       DropdownForm(
                         key: educationLevelKey,
                         initialValue: 'ISCED1',
