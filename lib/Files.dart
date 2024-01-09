@@ -44,7 +44,8 @@ class _FilesState extends State<Files> {
         future: retrieveFiles(widget.courseId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center,children: [CircularProgressIndicator(), SizedBox(height:10), Text("We're retrieving your files...")])); // Loading indicator while waiting
+            return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center,children: [CircularProgressIndicator(), 
+            SizedBox(height:10), Text("We're retrieving your files...")])); 
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else {
@@ -80,19 +81,10 @@ class _FilesState extends State<Files> {
 
       if (result != null && result.files.isNotEmpty) {
         PlatformFile file = result.files.first;
-
-        // Ensure the file has a path
         if (file.path != null) {
-          // Read file bytes asynchronously
           List<int> bytes = await File(file.path!).readAsBytes();
-
-          // Process the picked file
           print('File picked: ${file.name}');
-
-          // Extract file extension from the file name
           String fileExtension = file.extension ?? 'Unknown';
-
-          // Create a new instance of the FileApp class
           FileApp newFile = FileApp(
             fileId: files.length + 1,
             courseId: widget.courseId,
@@ -105,8 +97,6 @@ class _FilesState extends State<Files> {
 
           print('ORIGINAL FILE: $bytes');
           print('FILE UPLOAD: ${newFile.fileData}');
-
-          // Add the new file to the list and trigger a rebuild
           setState(() {
             widget.initialState=false;
             files.add(newFile);
@@ -126,18 +116,11 @@ class _FilesState extends State<Files> {
 void _downloadFile(FileApp file) async {
   try {
     print("FILE ${file.fileData}");
-    // Get the application documents directory
     final Directory appDocumentsDirectory =
         await getApplicationDocumentsDirectory();
-
-    // Create a File object for the destination file
     final String filePath = '${appDocumentsDirectory.path}/${file.fileName}';
     File destinationFile = File(filePath);
-
-    // Write the file data to the destination file
     await destinationFile.writeAsBytes(file.fileData);
-
-    // Open the file using the default application
     await OpenFile.open(filePath);
   } catch (e) {
     print('Error downloading or opening file: $e');

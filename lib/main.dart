@@ -6,9 +6,12 @@ import 'dart:async';
 import 'dart:io';
 import 'NavigationDrawer.dart';
 import 'commonClasses/utilities.dart';
+import 'classes/notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  NotificationService().initNotification();
   runApp(const MyApp());
 }
 
@@ -68,11 +71,9 @@ class _LoginState extends State<Login> {
       'NumeUtilizator': usernameController.text,
       'Parola': passwordController.text,
     };
-
     final requestBodyJson = jsonEncode(requestBody);
     request.headers
         .set('Content-Length', utf8.encode(requestBodyJson).length.toString());
-
     request.write(requestBodyJson);
     HttpClientResponse result = await request.close();
     print(result.statusCode);
@@ -122,9 +123,10 @@ class _LoginState extends State<Login> {
                 ),
                 const SizedBox(height: 40.0),
                 ElevatedButton(
-                  onPressed: () {
-                    LoginFunction();
+                  onPressed: () async {
+                    await LoginFunction();
                     if (isLoggedIn) {
+                      NotificationService().ShowNotification(title: 'Welcome back!',body: 'We prepared some courses for you!');
                       username = usernameController.text;
                       Navigator.push(
                         build,
@@ -241,7 +243,7 @@ class Register extends StatelessWidget {
   final TextEditingController Tara = TextEditingController();
   final TextEditingController Adresa = TextEditingController();
   final String selectedCountry =
-      'Romania'; // Make sure this is a valid initial value
+      'Romania'; 
   final List<String> countries = [
     'Romania',
     'Other Country 1',
@@ -517,6 +519,7 @@ class _ProfilePictureState extends State<ProfilePicture> {
   XFile? _image;
   String imagePath1 = '';
 
+
   Future getImageFromGallery() async {
     var image = await ImagePicker().pickImage(source: ImageSource.gallery);
     String imagePath = '';
@@ -531,9 +534,10 @@ class _ProfilePictureState extends State<ProfilePicture> {
 
   @override
   Widget build(BuildContext context) {
+    
     return InkWell(
       onTap: () {
-        _showImagePickerDialog();
+        //_showImagePickerDialog();
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(50.0),
@@ -541,17 +545,19 @@ class _ProfilePictureState extends State<ProfilePicture> {
             width: 100.0,
             height: 100.0,
             color: Colors.blue,
-            child: _image != null
-                ? Image.file(
-                    File(imagePath1),
-                    fit: BoxFit.cover,
-                  )
-                : const Icon(
-                    Icons.camera_alt,
-                    size: 40.0,
-                    color: Colors.white,
-                  )),
+            child: Image.network('https://cdn-icons-png.flaticon.com/512/1077/1077114.png'), 
+//            _image != null
+//                ? Image.file(
+//                    File(imagePath1),
+//                    fit: BoxFit.cover,
+//                  )
+//                : const Icon(
+//                    Icons.camera_alt,
+//                    size: 40.0,
+//                    color: Colors.white,
+//                  )),
       ),
+      )
     );
   }
 

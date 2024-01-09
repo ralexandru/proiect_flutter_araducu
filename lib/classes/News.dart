@@ -38,7 +38,7 @@ class News {
     };
   }
 
-  Future<void> AddNews() async {
+  Future<bool> AddNews() async {
     String? jwtToken = await getJWT();
     HttpClient client = new HttpClient();
     client.badCertificateCallback =
@@ -63,9 +63,11 @@ class News {
 
     if (result.statusCode == 200) {
       print('News successfully added');
+      return true;
     } else {
       print('JWT TOKEN ' + jwtToken.toString());
       print('News add failed!');
+      return false;
     }
   }
 }

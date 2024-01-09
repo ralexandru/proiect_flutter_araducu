@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:proiect_flutter_araducu/Home.dart';
 import 'commonClasses/utilities.dart';
 import 'classes/Course.dart';
 import 'classes/CourseMeeting.dart';
-
+import 'NavigationDrawer.dart';
+import 'classes/notifications.dart';
 List<DateTime> courseDates = [];
 List<CourseMeeting> courseMeetings = [];
 
@@ -76,7 +78,7 @@ class AddMeetings extends StatelessWidget {
     return containers;
   }
 
-  void CreateCourse(BuildContext context) {
+  Future<void> CreateCourse(BuildContext context) async {
     bool isValid = true;
 
     if (isValid) {
@@ -91,7 +93,14 @@ class AddMeetings extends StatelessWidget {
         meetings.add(meeting);
       }
       courseToBeAdded.meetings = meetings;
-      CreateCourseDB(courseToBeAdded);
+      if(await CreateCourseDB(courseToBeAdded)==true){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Homepage()),
+        );
+        NotificationService().ShowNotification(title: 'Administration!', body: 'Course has been added!');
+      };
+      
       courseToBeAdded.Test();
     }
 

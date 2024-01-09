@@ -8,7 +8,6 @@ import 'CourseMeeting.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
-
 import '../main.dart';
 
 class Course {
@@ -65,9 +64,9 @@ class Course {
   }
 }
 
-Future<void> CreateCourseDB(Course course) async {
+Future<bool> CreateCourseDB(Course course) async {
   String apiUrl =
-      "https://localhost:7097/api/Courses/course"; // Update the URL as needed
+      "https://localhost:7097/api/Courses/course";
   String? jwtToken = await getJWT();
 
   HttpClient client = HttpClient();
@@ -78,7 +77,6 @@ Future<void> CreateCourseDB(Course course) async {
     HttpClientRequest request = await client.postUrl(Uri.parse(apiUrl));
     request.headers.set('Content-Type', 'application/json');
     request.headers.set('Authorization', 'Bearer ${jwtToken.toString()}');
-
     final Map<String, dynamic> requestBody = {
       'CursDenumire': course.CourseName,
       'CursScurtaDescriere': course.CourseShortDescription,
@@ -89,17 +87,16 @@ Future<void> CreateCourseDB(Course course) async {
       'Pret': course.Price,
       'NivelDificultate': course.DifficultyLevel,
       'DomeniuId': course.DomainId,
+      'bannerImg': '',
       'meetinguriCurs': course.meetings
           ?.map((meeting) => {
                 'MeetingDenumire': meeting.CourseMeetingName,
                 'MeetingData': meeting.CourseMeetingDate.toIso8601String(),
                 'CursId': course.CourseId,
-                // Add other meeting properties as needed
                 
               })
           .toList(),
     };
-
     final requestBodyJson = jsonEncode(requestBody);
     print(requestBodyJson);
     request.write(requestBodyJson);
@@ -109,15 +106,20 @@ Future<void> CreateCourseDB(Course course) async {
 
     if (result.statusCode == 200) {
       print('Course successfully added');
+      return true;
     } else {
       print('JWT TOKEN ' + jwtToken.toString());
       print('Course add failed!');
+
+    print(result.statusCode);
+    print(await result.transform(utf8.decoder).join());
     }
   } catch (error) {
     print('Error: $error');
   } finally {
     client.close();
   }
+  return false;
 }
 
 Future<Course> fetchCourseInfo(int? courseId) async {
@@ -132,7 +134,6 @@ Future<Course> fetchCourseInfo(int? courseId) async {
     String responseBody = await response.transform(utf8.decoder).join();
     final Map<String, dynamic> responseData = json.decode(responseBody);
     Uint8List? fileData;
-    // Parse Course details
     Course course = Course(
       CourseId: responseData['CursId'],
       CourseName: responseData['CursDenumire'],
@@ -148,10 +149,8 @@ Future<Course> fetchCourseInfo(int? courseId) async {
     if (responseData["bannerImg"] != null) {
       course.fileData = Uint8List.fromList(base64.decode(responseData["bannerImg"]));
     } else {
-      // Assign a default value if fileData is null
       fileData = Uint8List(0); // Empty Uint8List
     }
-    // Parse CourseMeeting details
     if (responseData['meetinguriCurs'] != null) {
       List<CourseMeeting> meetings = [];
       for (var meetingData in responseData['meetinguriCurs']) {

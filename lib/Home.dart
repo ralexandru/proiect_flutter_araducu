@@ -209,7 +209,7 @@ void DeleteNewsApp(int newsId){
                                 color: Colors.blue))
                       ],
                     ),
-                    FutureBuilder(
+              FutureBuilder(
               future: fetchCourseNumbers(userId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -263,7 +263,7 @@ void DeleteNewsApp(int newsId){
 
                   if (domains != null && domains.isNotEmpty) {
                     
-                    return Row(mainAxisAlignment: MainAxisAlignment.center, children: createDomainsContainer(domains));
+                    return Column(mainAxisAlignment: MainAxisAlignment.center, children: createDomainsContainer(domains));
                   }else {
                     return Text('No news for the moment..');
                   }

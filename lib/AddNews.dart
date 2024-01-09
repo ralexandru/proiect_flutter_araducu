@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:proiect_flutter_araducu/classes/DomainOfStudy.dart';
 import 'commonClasses/utilities.dart';
 import 'classes/News.dart';
+import 'classes/notifications.dart';
 
 class AddNews extends StatelessWidget {
   final TextEditingController newsName = new TextEditingController();
@@ -27,12 +28,10 @@ class AddNews extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Add news", style: TextStyle(color: Colors.blue)),
-        // The title text which will be shown on the action bar
         backgroundColor: Colors.white,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.blue),
           onPressed: () {
-            // Add your back button functionality here
             Navigator.of(context).pop();
           },
         ),
@@ -71,8 +70,14 @@ class AddNews extends StatelessWidget {
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [Icon(Icons.add), Text('Add news')]),
-                      onPressed: () =>
-                          {newsAdd(newsName.text, newsContent.text)},
+                      onPressed: () async
+                          {
+                            if(await newsAdd(newsName.text, newsContent.text)==true){
+                                newsName.text = '';
+                                newsContent.text = '';
+                            }
+
+                          },
                       style: ButtonStyle(
                         backgroundColor:
                             MaterialStateProperty.all<Color>(Colors.blue),
@@ -90,8 +95,12 @@ class AddNews extends StatelessWidget {
   }
 }
 
-void newsAdd(String newsName, String newsContent) {
+Future<bool> newsAdd(String newsName, String newsContent) async{
   News newsToAdd = News(
       newsName: newsName, newsContent: newsContent);
-  newsToAdd.AddNews();
+  if(await newsToAdd.AddNews()==true){
+    NotificationService().ShowNotification(title:'Administration!',body: 'Content has been added!');
+    return true;
+  }
+  return false;
 }

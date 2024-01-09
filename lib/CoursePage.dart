@@ -35,34 +35,20 @@ class _CoursePageState extends State<CoursePage> {
    void _openFilePicker(Course course) async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles();
-
       if (result != null && result.files.isNotEmpty) {
         PlatformFile file = result.files.first;
-
-        // Ensure the file has a path
         if (file.path != null) {
-          // Read file bytes asynchronously
           List<int> bytes = await File(file.path!).readAsBytes();
-
-          // Process the picked file
           print('File picked: ${file.name}');
-
-          // Extract file extension from the file name
           String fileExtension = file.extension ?? 'Unknown';
-
-          // Create a new instance of the FileApp class
           widget.course.fileData = Uint8List.fromList(bytes);
-
           print('ORIGINAL FILE: $bytes');
           print('FILE UPLOAD: ${widget.course.fileData}');
-
-          // Add the new file to the list and trigger a rebuild
           setState(() {
             course.fileData = Uint8List.fromList(bytes);
             UpdateCourseBanner(course);
           });
           setState((){
-
           });
         } else {
           print('File path is null.');

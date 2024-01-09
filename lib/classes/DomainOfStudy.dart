@@ -34,7 +34,7 @@ class DomainOfStudy {
     };
   }
 
-  Future<void> CreateDomain() async {
+  Future<bool> CreateDomain() async {
     String? jwtToken = await getJWT();
     HttpClient client = new HttpClient();
     client.badCertificateCallback =
@@ -58,9 +58,11 @@ class DomainOfStudy {
 
     if (result.statusCode == 200) {
       print('Domain successfully added');
+      return true;
     } else {
       print('JWT TOKEN ' + jwtToken.toString());
       print('Domain add failed!');
+      return false;
     }
   }
 }

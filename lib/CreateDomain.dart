@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:proiect_flutter_araducu/classes/DomainOfStudy.dart';
 import 'commonClasses/utilities.dart';
-
+import 'classes/notifications.dart';
 DateTime startDate = DateTime.parse('1999-01-01');
 DateTime endDate = DateTime.parse('1999-01-01');
 int selectedDomainId = 0;
@@ -74,8 +74,12 @@ class AddDomain extends StatelessWidget {
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [Icon(Icons.add), Text('Add domain')]),
-                      onPressed: () =>
-                          {domainAdd(domainName.text, domainDescription.text)},
+                      onPressed: () async
+                          {if(await domainAdd(domainName.text, domainDescription.text)){
+                            domainName.text = '';
+                            domainDescription.text = '';
+                          }
+                          },
                       style: ButtonStyle(
                         backgroundColor:
                             MaterialStateProperty.all<Color>(Colors.blue),
@@ -93,8 +97,12 @@ class AddDomain extends StatelessWidget {
   }
 }
 
-void domainAdd(String domainName, String domainDescription) {
+Future<bool> domainAdd(String domainName, String domainDescription) async {
   DomainOfStudy newDomain = DomainOfStudy(
       domainName: domainName, domainDescription: domainDescription);
-  newDomain.CreateDomain();
+  if(await newDomain.CreateDomain()==true){
+    NotificationService().ShowNotification(title:'Administration!',body: 'Domain has been added!');
+    return true;
+  }
+  return false;
 }

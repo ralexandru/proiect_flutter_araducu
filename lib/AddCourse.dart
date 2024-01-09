@@ -3,7 +3,7 @@ import 'AddMeetings.dart';
 import 'commonClasses/utilities.dart';
 import 'classes/DomainOfStudy.dart';
 import 'classes/Course.dart';
-
+import 'classes/notifications.dart';
 DateTime startDate = DateTime.parse('1999-01-01');
 DateTime endDate = DateTime.parse('1999-01-01');
 int selectedDomainId = 0;
@@ -147,6 +147,8 @@ class AddCourse extends StatelessWidget {
                           ),
                         ),
                       );
+                    }else{
+                      NotificationService().ShowNotification(title: 'Oops!', body:'Please double check all fields!');
                     }
                   },
                 )
