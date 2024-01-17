@@ -71,29 +71,56 @@ class _NumericTextFieldState extends State<NumericTextField> {
   }
 }
 
-//ignore: must_be_immutable
-class TextArea extends StatelessWidget {
+// Ignore: must_be_immutable
+class TextArea extends StatefulWidget {
   TextEditingController controller = TextEditingController();
   String labelText = '';
   int maxLines = 0;
+  int? maxCharacters;
   bool? editable = true;
   Icon? icon;
-  TextArea(
-      {required this.controller,
-      required this.labelText,
-      required this.maxLines,
-      this.icon,
-      this.editable});
+
+  TextArea({
+    required this.controller,
+    required this.labelText,
+    required this.maxLines,
+    this.icon,
+    this.editable,
+    this.maxCharacters,
+  });
+
+  @override
+  _TextAreaState createState() => _TextAreaState();
+}
+
+class _TextAreaState extends State<TextArea> {
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      enabled: editable, // Set maxLines to null for multiline support
-      decoration: InputDecoration(
-        labelText: labelText,
-        border: OutlineInputBorder(),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: widget.controller,
+          maxLines: widget.maxLines,
+          enabled: widget.editable,
+          decoration: InputDecoration(
+            labelText: widget.labelText,
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (text) {
+            setState(() {
+              // If you want to limit the characters, uncomment the next line
+              // text = text.length <= maxCharacters ? text : text.substring(0, maxCharacters);
+              widget.controller.text = text;
+            });
+          },
+        ),
+        SizedBox(height: 10),
+        Text(
+          'Minimum number of characters: ${widget.controller.text.length} / ${widget.maxCharacters ?? 0}',
+          style: TextStyle(color: Colors.grey),
+        ),
+      ],
     );
   }
 }
@@ -109,15 +136,15 @@ class InitialsAvatar extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: Colors.blue, // Choose your preferred background color
+        color: Colors.blue, 
         shape: BoxShape.circle,
       ),
       child: Center(
         child: Text(
           initials,
           style: TextStyle(
-            color: Colors.white, // Choose your preferred text color
-            fontSize: size * 0.4, // Adjust the font size as needed
+            color: Colors.white,
+            fontSize: size * 0.4,
             fontWeight: FontWeight.bold,
           ),
         ),

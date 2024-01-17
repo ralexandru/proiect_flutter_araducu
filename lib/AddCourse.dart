@@ -102,6 +102,7 @@ class AddCourse extends StatelessWidget {
                   controller: shortDescCourse,
                   labelText: 'Enter a short description for the course',
                   maxLines: 5,
+                  maxCharacters: 20,
                 ),
                 SizedBox(height: 20),
                 Text("Course short description"),
@@ -110,6 +111,7 @@ class AddCourse extends StatelessWidget {
                   controller: longDescCourse,
                   labelText: 'Enter a long description for the course',
                   maxLines: 10,
+                  maxCharacters: 50,
                 ),
                 SizedBox(height: 20),
                 Text("Duration: "),
@@ -184,7 +186,7 @@ class DropdownButtonProiect extends StatefulWidget {
 
 class _DropdownButtonState extends State<DropdownButtonProiect> {
   late Future<List<DomainOfStudy>> domainsFuture;
-  int? dropdownSelectedDomainId; // Use a different name
+  int? dropdownSelectedDomainId; 
   List<DomainOfStudy> domainsList = [];
 
   @override

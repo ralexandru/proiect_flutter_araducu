@@ -306,6 +306,27 @@ Future<List<String>> fetchDomainsEnrolled(int? utilizatorId) async {
     client.close();
   }
 }
+ Future<void> DeleteCourse(int courseId) async {
+    String? jwtToken = await getJWT();
+    HttpClient client = new HttpClient();
+    client.badCertificateCallback =
+        ((X509Certificate cert, String host, int port) => true);
+    HttpClientRequest request = await client
+        .deleteUrl(Uri.parse("https://localhost:7097/api/Courses/course?courseId=$courseId"));
+    request.headers.set('Content-Type', 'application/json');
+    request.headers.set('Authorization', 'Bearer ${jwtToken.toString()}');
+
+    HttpClientResponse result = await request.close();
+
+    print(result.statusCode);
+
+    if (result.statusCode == 200) {
+      print('Course successfully remove');
+    } else {
+      print('JWT TOKEN ' + jwtToken.toString());
+      print('Bookmark remove failed!');
+    }
+  }
 
  Future<void> DeleteBookmark(int courseId, int userId) async {
     String? jwtToken = await getJWT();

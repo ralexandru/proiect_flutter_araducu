@@ -101,10 +101,8 @@ Future<void> DeleteDomain(DomainOfStudy updatedDomain) async {
   HttpClientRequest request = await client.deleteUrl(url);
   request.headers.set('Content-Type', 'application/json');
 
-  // Convert the updatedDomain to JSON
   String jsonDomain = jsonEncode(updatedDomain.toJsonDelete());
 
-  // Write the JSON data to the request body
   request.write(jsonDomain);
 
   HttpClientResponse response = await request.close();
@@ -154,14 +152,11 @@ Future<DomainOfStudy> fetchDomainInfo(int? domainId) async {
     String responseBody = await response.transform(utf8.decoder).join();
     final Map<String, dynamic> responseData = json.decode(responseBody);
 
-    // Parse Course details
     DomainOfStudy domain = DomainOfStudy(
       domainId: responseData['DomeniuId'],
       domainName: responseData['DomeniuDenumire'],
       domainDescription: responseData['DomeniuDescriere'],
     );
-
-    // Parse CourseMeeting detail
 
     return domain;
   } else {

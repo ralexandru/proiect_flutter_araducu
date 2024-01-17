@@ -11,6 +11,7 @@ import 'CreateDomain.dart';
 import 'ManageDomains.dart';
 import 'AddNews.dart';
 import 'classes/User.dart';
+
 int userId = 0;
 String username = '';
 String email = '';
@@ -22,6 +23,7 @@ int nivelAcces = 0;
 String city = '';
 String birthday = '';
 User? user;
+
 //ignore: must_be_immutable
 Future<void> getUserData() async {
   final client = HttpClient()

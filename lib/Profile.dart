@@ -15,12 +15,10 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // The title text which will be shown on the action bar
         backgroundColor: Colors.white,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.blue),
           onPressed: () {
-            // Add your back button functionality here
             Navigator.of(context).pop();
           },
         ),
@@ -155,7 +153,7 @@ class _ProfileState extends State<Profile> {
                 ),
               ),
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 20), // Adjust the horizontal margin as needed
+              margin: EdgeInsets.symmetric(horizontal: 20), 
               child: OutlinedButton(
                 onPressed: () => _showChangePasswordDialog(context),
                 child: Text('Modify Password'),
@@ -165,7 +163,7 @@ class _ProfileState extends State<Profile> {
             ),
             SizedBox(height: 20),
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 20), // Adjust the horizontal margin as needed
+              margin: EdgeInsets.symmetric(horizontal: 20), 
               child: OutlinedButton(
                 onPressed: () => _showChangeEmailDialog(context),
                 child: Text('Modify Email'),
@@ -206,7 +204,6 @@ class _ProfileState extends State<Profile> {
               onPressed: () {
                 String newPassword = newPasswordController.text;
                 user!.UpdateUserPassword(newPassword);
-                // Add your password change logic here
                 print('New Password: $newPassword');
                 Navigator.of(context).pop();
               },
@@ -245,7 +242,6 @@ class _ProfileState extends State<Profile> {
                                 setState(() {
                   user!.email = newEmail;
                 });
-                // Add your email change logic here
                 user!.email = newEmail;
                 user!.UpdateUserEmail();
                 print('New Email: $newEmail');

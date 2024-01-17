@@ -75,7 +75,6 @@ Row(
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else {
-                    // Once the future is complete, you can access the data
                     images =
                         snapshot.data as List<CarouselImage>;
                     return Column(

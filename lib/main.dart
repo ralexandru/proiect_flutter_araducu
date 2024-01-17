@@ -106,6 +106,12 @@ class _LoginState extends State<Login> {
                       fontSize: 50,
                       fontWeight: FontWeight.bold,
                     )),
+                const Text('coming from latin - teacher, instructor, tutor',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    )),
                 const SizedBox(height: 70.0),
                 FilledTextField(
                   controller: usernameController,

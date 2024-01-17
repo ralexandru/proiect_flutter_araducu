@@ -10,7 +10,6 @@ List<DomainOfStudy> domainsList = [];
 void GetDomains() async {
   domainsList = await retrieveDomains();
 
-  // Now you can work with the domainsList
   for (DomainOfStudy domain in domainsList) {
     print(
         'Domain Name: ${domain.domainName}, Description: ${domain.domainDescription}');
@@ -62,7 +61,6 @@ class ModifyDomainsState extends State<ModifyDomains> {
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else {
-                    // Once the future is complete, you can access the data
                     List<DomainOfStudy> domainsList =
                         snapshot.data as List<DomainOfStudy>;
                     return Column(

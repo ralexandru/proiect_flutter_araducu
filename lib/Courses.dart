@@ -165,6 +165,9 @@ class _CoursesPageState extends State<CoursesPage> {
                     onPressed: () {
                       // Do nothing here or add any specific logic you need
                     },
+                    onDelete: () {
+
+                    },
                   );
                 },
               )
@@ -193,6 +196,15 @@ class _CoursesPageState extends State<CoursesPage> {
                       // Update UI after enrollment
                       fetchCourses();
                     },
+                    onDelete: () async{
+                      int courseId = courses[index].CourseId ?? 0;
+                      await DeleteCourse(courseId);
+                      setState(() {
+                        courses.removeAt(index);
+                      });
+                      // Update UI after enrollment
+                      fetchCourses();
+                    },
                   );
                 },
               )
@@ -209,12 +221,13 @@ class _CoursesPageState extends State<CoursesPage> {
 
 class CourseContainer extends StatefulWidget {
   final VoidCallback onPressed;
+  final VoidCallback onDelete;
   final int type;
   final Course course;
   final bool isEnrolled;
 
   CourseContainer(
-      {required this.course, required this.onPressed, required this.type, required this.isEnrolled});
+      {required this.course, required this.onPressed, required this.type, required this.isEnrolled, required this.onDelete});
 
   @override
   _CourseContainerState createState() => _CourseContainerState();
@@ -283,7 +296,7 @@ class _CourseContainerState extends State<CourseContainer> {
                         MaterialStateProperty.all<Color>(Colors.white),
                   ),
                   onPressed: () {
-                    // Perform some action
+                    widget.onDelete();
                   },
                   child: const Text('Delete'),
                 ),

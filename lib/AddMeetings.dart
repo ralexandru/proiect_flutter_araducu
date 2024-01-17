@@ -232,7 +232,6 @@ class _DatePickerState extends State<DatePicker> {
             pickedTime.minute,
           );
           courseDates[widget.pickedDate] = selectedDateTime;
-          // Update your list or any other logic as needed
           // courseDates[widget.pickedDate] = selectedDateTime;
         });
       }
